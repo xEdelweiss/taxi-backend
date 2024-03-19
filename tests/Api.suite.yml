@@ -1,0 +1,30 @@
+# Codeception Test Suite Configuration
+#
+# Suite for API tests
+# Emulate web requests and make application process them
+
+actor: ApiTester
+modules:
+    enabled:
+        - Asserts
+        - Symfony:
+              app_path: 'src'
+              environment: 'test'
+        - Doctrine2:
+              depends: Symfony
+              cleanup: true
+        - REST:
+              depends: Symfony
+              part: Json
+        - \App\Tests\Support\Helper\MigrateDb:
+              depends: Symfony
+        - \App\Tests\Support\Helper\Entities:
+              depends:
+                - Symfony
+                - Doctrine2
+        - \App\Tests\Support\Helper\Auth:
+              depends:
+                - Symfony
+                - Doctrine2
+step_decorators:
+    - \Codeception\Step\Decorator\AsJson

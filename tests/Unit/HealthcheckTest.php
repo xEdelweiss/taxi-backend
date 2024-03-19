@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 class HealthcheckTest extends TestCase
 {
-    public function testSomething(): void
+    public function testPhpUnitWorks(): void
     {
         $this->assertTrue(true);
     }

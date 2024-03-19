@@ -7,19 +7,31 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/dbal": "^3",
+        "doctrine/doctrine-bundle": "^2.12",
+        "doctrine/doctrine-migrations-bundle": "^3.3",
+        "doctrine/orm": "^3.1",
         "symfony/console": "7.0.*",
         "symfony/dotenv": "7.0.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "7.0.*",
         "symfony/runtime": "7.0.*",
+        "symfony/security-bundle": "7.0.*",
         "symfony/yaml": "7.0.*"
     },
     "require-dev": {
+        "codeception/codeception": "^5.1",
+        "codeception/module-asserts": "^3.0",
+        "codeception/module-doctrine2": "^3.0",
+        "codeception/module-phpbrowser": "^3.0",
+        "codeception/module-rest": "^3.3",
+        "codeception/module-symfony": "^3.3",
         "phpunit/phpunit": "^10.0",
         "symfony/browser-kit": "7.0.*",
         "symfony/css-selector": "7.0.*",
         "symfony/maker-bundle": "^1.56",
-        "symfony/phpunit-bridge": "^7.0"
+        "symfony/phpunit-bridge": "^7.0",
+        "ext-mbstring": "*"
     },
     "config": {
         "allow-plugins": {
@@ -35,8 +47,12 @@
         }
     },
     "autoload-dev": {
+        "files": [
+            "tests/Support/Step/patched.php"
+        ],
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "App\\Tests\\": "tests/",
+            "Codeception\\Step\\Decorator\\": "tests/Support/Step/Decorator/"
         }
     },
     "replace": {
