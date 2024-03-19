@@ -48,6 +48,7 @@
     },
     "autoload-dev": {
         "files": [
+            "tests/_utils/helpers.php",
             "tests/Support/Step/patched.php"
         ],
         "psr-4": {
