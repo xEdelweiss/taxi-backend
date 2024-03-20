@@ -15,9 +15,19 @@ class AuthController extends AbstractController
             return $this->json(['message' => 'Unauthorized.'], Response::HTTP_UNAUTHORIZED);
         }
 
+        $roles = array_filter(array_map(
+            fn($role) => match ($role) {
+                'ROLE_USER' => 'user',
+                'ROLE_DRIVER' => 'driver',
+                default => null,
+            },
+            $this->getUser()->getRoles()
+        ));
+
         return $this->json([
             'id' => $this->getUser()->getId(),
             'phone' => $this->getUser()->getPhone(),
+            'roles' => $roles,
         ]);
     }
 }

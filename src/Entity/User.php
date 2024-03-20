@@ -18,7 +18,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    private ?string $phone = null;
+    private string $phone;
 
     /**
      * @var list<string> The user roles
@@ -32,12 +32,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    #[ORM\Column]
+    private bool $verifiedDriver;
+
+    public function __construct(string $phone)
+    {
+        $this->phone = $phone;
+        $this->verifiedDriver = false;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getPhone(): ?string
+    public function getPhone(): string
     {
         return $this->phone;
     }
@@ -69,6 +78,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
+
+        if ($this->verifiedDriver) {
+            $roles[] = 'ROLE_DRIVER';
+        }
 
         return array_unique($roles);
     }
@@ -105,5 +118,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function isVerifiedDriver(): bool
+    {
+        return $this->verifiedDriver;
+    }
+
+    public function setVerifiedDriver(bool $verifiedDriver): static
+    {
+        $this->verifiedDriver = $verifiedDriver;
+
+        return $this;
     }
 }

@@ -13,9 +13,19 @@ class Entities extends \Codeception\Module
 {
     public function haveUser(string $phone): User
     {
-        $user = new User();
-        $user->setPhone($phone);
-        $user->setPassword('!password!');
+        $user = new User($phone);
+        $user->setPassword('$2y$13$aWqkhhvxijEHLqvhf2eoPulxi74ewNAJCSDpHTeNemoJ/6y/jXqH.'); // !password!
+
+        $this->getModule('Doctrine2')->haveInRepository($user);
+
+        return $user;
+    }
+
+    public function haveDriver(string $phone): User
+    {
+        $user = new User($phone);
+        $user->setPassword('$2y$13$aWqkhhvxijEHLqvhf2eoPulxi74ewNAJCSDpHTeNemoJ/6y/jXqH.'); // !password!
+        $user->setVerifiedDriver(true);
 
         $this->getModule('Doctrine2')->haveInRepository($user);
 

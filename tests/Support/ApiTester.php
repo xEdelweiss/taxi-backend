@@ -34,10 +34,18 @@ class ApiTester extends \Codeception\Actor
         }
     }
 
-    public function amLoggedInAsNew(string $phone = '380990000001'): User
+    public function amLoggedInAsNewUser(string $phone = '380990000001'): User
     {
         $user = $this->haveUser($phone);
-        $this->amLoggedInAs($user);
+        $this->loginAs($user);
+
+        return $user;
+    }
+
+    public function amLoggedInAsNewDriver(string $phone = '380990000001'): User
+    {
+        $user = $this->haveDriver($phone);
+        $this->loginAs($user);
 
         return $user;
     }

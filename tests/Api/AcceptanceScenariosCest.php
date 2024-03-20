@@ -11,10 +11,10 @@ class AcceptanceScenariosCest
     public function userOrdersTaxi(ApiTester $i)
     {
         $i->haveUser(p(1));
-        $i->haveUser(p(2)); // driver
+        $i->haveDriver(p(2)); // driver
 
         // User: Moves to the location
-        $i->amLoggedInAs(p(1));
+        $i->loginAs(p(1));
         $i->sendPost('/api/tracking/locations', [
             'latitude' => 46.4273814334286,
             'longitude' => 30.751279752912698,
@@ -22,12 +22,13 @@ class AcceptanceScenariosCest
         $i->seeResponseCodeIs(HttpCode::NO_CONTENT);
 
         // Driver: Moves to the location
-        $i->amLoggedInAs(p(2));
+        $i->loginAs(p(2));
         $i->sendPost('/api/tracking/locations', [
             'latitude' => 46.423173199108106,
             'longitude' => 30.74705368639186,
         ]);
         $i->seeResponseCodeIs(HttpCode::NO_CONTENT);
+
         // Driver: Starts working
         $i->sendPutAsJson('/api/driver/me', [
             'status' => 'AVAILABLE',
@@ -40,7 +41,7 @@ class AcceptanceScenariosCest
         ]);
 
         // User: Get start address by location
-        $i->amLoggedInAs(p(1));
+        $i->loginAs(p(1));
         $i->sendPostAsJson('/api/geolocation/addresses', [
             'latitude' => 46.4273814334286,
             'longitude' => 30.751279752912698,
@@ -127,7 +128,7 @@ class AcceptanceScenariosCest
         ]);
 
         // Driver: Get order
-        $i->amLoggedInAs(p(2));
+        $i->loginAs(p(2));
         $i->sendGetAsJson('/api/trip/orders');
         $i->seeResponse(HttpCode::OK, [
             'data' => [
@@ -152,7 +153,7 @@ class AcceptanceScenariosCest
         ]);
 
         // User: Poll for status
-        $i->amLoggedInAs(p(1));
+        $i->loginAs(p(1));
         $i->sendGetAsJson('/api/trip/orders/1');
         $i->seeResponse(HttpCode::OK, [
             'data' => [
@@ -162,7 +163,7 @@ class AcceptanceScenariosCest
         ]);
 
         // Driver: Arrived
-        $i->amLoggedInAs(p(2));
+        $i->loginAs(p(2));
         $i->sendPutAsJson('/api/trip/orders/1', [
             'status' => 'DRIVER_ARRIVED',
         ]);
@@ -174,7 +175,7 @@ class AcceptanceScenariosCest
         ]);
 
         // User: Poll for status
-        $i->amLoggedInAs(p(1));
+        $i->loginAs(p(1));
         $i->sendGetAsJson('/api/trip/orders/1');
         $i->seeResponse(HttpCode::OK, [
             'data' => [
@@ -184,21 +185,21 @@ class AcceptanceScenariosCest
         ]);
 
         // Driver: Start trip
-        $i->amLoggedInAs(p(2));
+        $i->loginAs(p(2));
         $i->sendPutAsJson('/api/trip/orders/1', [
             'status' => 'IN_PROGRESS',
         ]);
 
         // User and Driver arrive at the destination
         // User
-        $i->amLoggedInAs(p(1));
+        $i->loginAs(p(1));
         $i->sendPost('/api/tracking/locations', [
             'latitude' => 46.451535800869266,
             'longitude' => 30.743732579391782,
         ]);
         $i->seeResponseCodeIs(HttpCode::NO_CONTENT);
         // Driver
-        $i->amLoggedInAs(p(2));
+        $i->loginAs(p(2));
         $i->sendPost('/api/tracking/locations', [
             'latitude' => 46.451535800869266,
             'longitude' => 30.743732579391782,
@@ -217,7 +218,7 @@ class AcceptanceScenariosCest
         ]);
 
         // User: Poll for status
-        $i->amLoggedInAs(p(1));
+        $i->loginAs(p(1));
         $i->sendGetAsJson('/api/trip/orders/1');
         $i->seeResponse(HttpCode::OK, [
             'data' => [
@@ -242,7 +243,7 @@ class AcceptanceScenariosCest
         ]);
 
         // Drive: Stop working
-        $i->amLoggedInAs(p(2));
+        $i->loginAs(p(2));
         $i->sendPutAsJson('/api/driver/me', [
             'status' => 'OFFLINE',
         ]);
