@@ -7,10 +7,7 @@ namespace App\Tests\Support\Helper;
 // here you can define custom actions
 // all public methods declared in helper class will be available in $I
 
-use App\Entity\Pocket;
 use App\Entity\User;
-use App\Entity\Workspace;
-use App\Enum\MembershipStatus;
 
 class Entities extends \Codeception\Module
 {

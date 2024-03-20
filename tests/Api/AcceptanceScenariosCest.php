@@ -15,7 +15,7 @@ class AcceptanceScenariosCest
 
         // User: Moves to the location
         $i->amLoggedInAs(p(1));
-        $i->sendPostAsJson('/api/tracking/locations', [
+        $i->sendPost('/api/tracking/locations', [
             'latitude' => 46.4273814334286,
             'longitude' => 30.751279752912698,
         ]);
@@ -23,7 +23,7 @@ class AcceptanceScenariosCest
 
         // Driver: Moves to the location
         $i->amLoggedInAs(p(2));
-        $i->sendPostAsJson('/api/tracking/locations', [
+        $i->sendPost('/api/tracking/locations', [
             'latitude' => 46.423173199108106,
             'longitude' => 30.74705368639186,
         ]);
@@ -32,10 +32,16 @@ class AcceptanceScenariosCest
         $i->sendPutAsJson('/api/driver/me', [
             'status' => 'AVAILABLE',
         ]);
+        $i->seeResponse(HttpCode::OK, [
+            'data' => [
+                'id' => 2,
+                'status' => 'AVAILABLE',
+            ],
+        ]);
 
         // User: Get start address by location
         $i->amLoggedInAs(p(1));
-        $i->sendPostAsJson('/api/geo-location/addresses', [
+        $i->sendPostAsJson('/api/geolocation/addresses', [
             'latitude' => 46.4273814334286,
             'longitude' => 30.751279752912698,
         ]);
@@ -46,7 +52,7 @@ class AcceptanceScenariosCest
         ]);
 
         // User: Get destination location by address
-        $i->sendPostAsJson('/api/geo-location/coordinates', [
+        $i->sendPostAsJson('/api/geolocation/coordinates', [
             'address' => 'Sehedska Street, 5'
         ]);
         $i->seeResponse(HttpCode::OK, [
@@ -98,18 +104,17 @@ class AcceptanceScenariosCest
         // User: Pay for order
         $i->sendPostAsJson('/api/payment/payments', [
             'order_id' => 1,
-            'amount' => 100,
         ]);
         $i->seeResponseCodeIs(HttpCode::CREATED, [
             'data' => [
                 'id' => 1,
                 'order_id' => 1,
                 'amount' => 100,
-                'url' => 'https://fake-provider.dev/redirect?order_id=1',
+                'url' => '/api/payment/fake-provider?order_id=1',
             ],
         ]);
 
-        $i->sendGet('/api/payment/redirect?order_id=1');
+        $i->sendGet('/api/payment/fake-provider?order_id=1');
         $i->seeResponseCodeIs(HttpCode::OK);
 
         // User: Poll for status
@@ -187,14 +192,14 @@ class AcceptanceScenariosCest
         // User and Driver arrive at the destination
         // User
         $i->amLoggedInAs(p(1));
-        $i->sendPostAsJson('/api/tracking/locations', [
+        $i->sendPost('/api/tracking/locations', [
             'latitude' => 46.451535800869266,
             'longitude' => 30.743732579391782,
         ]);
         $i->seeResponseCodeIs(HttpCode::NO_CONTENT);
         // Driver
         $i->amLoggedInAs(p(2));
-        $i->sendPostAsJson('/api/tracking/locations', [
+        $i->sendPost('/api/tracking/locations', [
             'latitude' => 46.451535800869266,
             'longitude' => 30.743732579391782,
         ]);

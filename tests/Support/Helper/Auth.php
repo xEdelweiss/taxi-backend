@@ -8,8 +8,6 @@ namespace App\Tests\Support\Helper;
 // all public methods declared in helper class will be available in $I
 
 use App\Entity\User;
-use App\Entity\Workspace;
-use App\Enum\MembershipStatus;
 
 class Auth extends \Codeception\Module
 {
