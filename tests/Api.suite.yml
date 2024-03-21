@@ -13,10 +13,18 @@ modules:
         - Doctrine2:
               depends: Symfony
               cleanup: true
+        - MongoDb:
+              dsn: '%MONGODB_URL%'
+              user: '%MONGODB_USER%'
+              password: '%MONGODB_PASSWORD%'
+              populate: false
+              cleanup: false
         - REST:
               depends: Symfony
               part: Json
         - \App\Tests\Support\Helper\MigrateDb:
+              depends: Symfony
+        - \App\Tests\Support\Helper\MongoDb:
               depends: Symfony
         - \App\Tests\Support\Helper\Entities:
               depends:

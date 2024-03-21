@@ -74,7 +74,7 @@ namespace PHPSTORM_META {
 
     // modules autocompletion
 
-    registerArgumentsSet('codeceptionModules', 'Symfony', 'REST', 'Doctrine2', 'Asserts', 'Db', 'PhpBrowser');
+    registerArgumentsSet('codeceptionModules', 'Symfony', 'REST', 'Doctrine2', 'Asserts', 'Db', 'PhpBrowser', 'MongoDb');
 
     expectedArguments(\Codeception\Test\Unit::getModule(), 0, argumentsSet('codeceptionModules'));
     override(\Codeception\Test\Unit::getModule(), map([

@@ -18,10 +18,9 @@ class ExtendedStep extends CodeceptionStep
 
     protected function stringifyArgument(mixed $argument): string
     {
-        if (is_string($argument) && preg_match('/App\\\Entity\\\[a-z\\\]+/i', $argument))
+        if (is_string($argument) && preg_match('/App\\\(Entity|Document)\\\[a-z\\\]+/i', $argument))
         {
-            $reflection = new \ReflectionClass($argument);
-            return $reflection->getShortName();
+            return (new \ReflectionClass($argument))->getShortName();
         }
 
         return parent::stringifyArgument($argument);
@@ -33,7 +32,7 @@ class ExtendedStep extends CodeceptionStep
             return $this->enumToString($argument);
         }
 
-        if ($this->isAppEntity($argument)) {
+        if ($this->isAppEntityOrDocument($argument)) {
             return $this->entityToString($argument);
         }
 
@@ -46,15 +45,15 @@ class ExtendedStep extends CodeceptionStep
         return $reflection->getShortName() . '::' . $enum->name;
     }
 
-    protected function isAppEntity(object $argument): bool
+    protected function isAppEntityOrDocument(object $argument): bool
     {
-        return str_starts_with(get_class($argument), 'App\\Entity\\');
+        return str_starts_with(get_class($argument), 'App\\Entity\\')
+            || str_starts_with(get_class($argument), 'App\\Document\\');
     }
 
     protected function entityToString(object $argument): string
     {
-        $reflection = new \ReflectionClass($argument);
-        return $reflection->getShortName();
+        return (new \ReflectionClass($argument))->getShortName();
     }
 }
 
