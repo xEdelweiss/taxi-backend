@@ -7,6 +7,7 @@ namespace App\Tests\Support\Helper;
 // here you can define custom actions
 // all public methods declared in helper class will be available in $I
 
+use App\Entity\DriverProfile;
 use App\Entity\User;
 
 class Entities extends \Codeception\Module
@@ -21,11 +22,14 @@ class Entities extends \Codeception\Module
         return $user;
     }
 
-    public function haveDriver(string $phone): User
+    public function haveDriver(string $phone, bool $online = true): User
     {
         $user = new User($phone);
         $user->setPassword('$2y$13$aWqkhhvxijEHLqvhf2eoPulxi74ewNAJCSDpHTeNemoJ/6y/jXqH.'); // !password!
-        $user->setVerifiedDriver(true);
+        $user->setDriverProfile(
+            (new DriverProfile())
+                ->setOnline($online)
+        );
 
         $this->getModule('Doctrine2')->haveInRepository($user);
 

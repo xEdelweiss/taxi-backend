@@ -32,13 +32,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column]
-    private bool $verifiedDriver;
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?DriverProfile $driverProfile = null;
 
     public function __construct(string $phone)
     {
         $this->phone = $phone;
-        $this->verifiedDriver = false;
     }
 
     public function getId(): ?int
@@ -79,7 +78,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
-        if ($this->verifiedDriver) {
+        if ($this->isDriver()) {
             $roles[] = 'ROLE_DRIVER';
         }
 
@@ -120,14 +119,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function isVerifiedDriver(): bool
+    public function isDriver(): bool
     {
-        return $this->verifiedDriver;
+        return $this->getDriverProfile() !== null;
     }
 
-    public function setVerifiedDriver(bool $verifiedDriver): static
+    public function getDriverProfile(): ?DriverProfile
     {
-        $this->verifiedDriver = $verifiedDriver;
+        return $this->driverProfile;
+    }
+
+    public function setDriverProfile(?DriverProfile $driverProfile): static
+    {
+        $this->driverProfile = $driverProfile;
 
         return $this;
     }

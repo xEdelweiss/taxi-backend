@@ -31,12 +31,12 @@ class AcceptanceScenariosCest
 
         // Driver: Starts working
         $i->sendPutAsJson('/api/driver/me', [
-            'status' => 'AVAILABLE',
+            'online' => true,
         ]);
         $i->seeResponse(HttpCode::OK, [
             'data' => [
                 'id' => 2,
-                'status' => 'AVAILABLE',
+                'online' => true,
             ],
         ]);
 
@@ -245,7 +245,7 @@ class AcceptanceScenariosCest
         // Drive: Stop working
         $i->loginAs(p(2));
         $i->sendPutAsJson('/api/driver/me', [
-            'status' => 'OFFLINE',
+            'online' => false,
         ]);
     }
 }
