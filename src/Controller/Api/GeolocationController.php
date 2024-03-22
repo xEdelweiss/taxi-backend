@@ -2,31 +2,50 @@
 
 namespace App\Controller\Api;
 
+use App\Service\GeolocationServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/geolocation')]
 class GeolocationController extends AbstractController
 {
+    public function __construct(
+        private readonly GeolocationServiceInterface $geolocationService,
+    ) {}
+
     #[Route('/addresses', methods: ['POST'])]
-    public function coordsToAddress(): JsonResponse
+    public function coordsToAddress(Request $request): JsonResponse
     {
+        $latitude = $request->getPayload()->get('latitude');
+        $longitude = $request->getPayload()->get('longitude');
+
+        $addressDto = $this->geolocationService->getGeocoder()
+            ->useLocale($request->getLocale())
+            ->coordinatesToAddress($latitude, $longitude);
+
         return $this->json([
             'data' => [
-                'address' => '7th st. Fontanskoyi dorohy',
+                'address' => $addressDto->address,
             ],
         ], Response::HTTP_OK);
     }
 
     #[Route('/coordinates', methods: ['POST'])]
-    public function addressToCoords(): JsonResponse
+    public function addressToCoords(Request $request): JsonResponse
     {
+        $address = $request->getPayload()->get('address');
+
+        $coordsDto = $this->geolocationService->getGeocoder()
+            ->useLocale($request->getLocale())
+            ->addressToCoordinates($address);
+
         return $this->json([
             'data' => [
-                'latitude' => 46.451538925795234,
-                'longitude' => 30.743980453729417,
+                'latitude' => $coordsDto->latitude,
+                'longitude' => $coordsDto->longitude,
             ],
         ], Response::HTTP_OK);
     }

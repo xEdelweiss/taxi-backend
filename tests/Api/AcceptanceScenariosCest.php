@@ -48,7 +48,7 @@ class AcceptanceScenariosCest
         ]);
         $i->seeResponse(HttpCode::OK, [
             'data' => [
-                'address' => '7th st. Fontanskoyi dorohy',
+                'address' => 'fake-46.42-30.75',
             ],
         ]);
 
@@ -58,8 +58,8 @@ class AcceptanceScenariosCest
         ]);
         $i->seeResponse(HttpCode::OK, [
             'data' => [
-                'latitude' => 46.451538925795234,
-                'longitude' => 30.743980453729417,
+                'latitude' => 01.18,
+                'longitude' => 02.18,
             ],
         ]);
 
