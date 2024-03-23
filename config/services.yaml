@@ -24,8 +24,14 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    Stripe\StripeClient:
+        arguments:
+            - '%env(STRIPE_SECRET_KEY)%'
+
     App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\FakeGeocoder'
+    App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\FakePaymentProvider'
 
 when@prod:
     services:
         App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\NominatimGeocoder'
+        App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\StripePaymentProvider'

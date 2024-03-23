@@ -35,6 +35,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?DriverProfile $driverProfile = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $stripeCustomerId = null;
+
     public function __construct(string $phone)
     {
         $this->phone = $phone;
@@ -132,6 +135,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDriverProfile(?DriverProfile $driverProfile): static
     {
         $this->driverProfile = $driverProfile;
+
+        return $this;
+    }
+
+    public function getStripeCustomerId(): ?string
+    {
+        return $this->stripeCustomerId;
+    }
+
+    public function setStripeCustomerId(?string $stripeCustomerId): static
+    {
+        $this->stripeCustomerId = $stripeCustomerId;
 
         return $this;
     }
