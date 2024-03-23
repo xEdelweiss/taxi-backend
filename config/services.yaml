@@ -31,7 +31,9 @@ services:
     App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\FakeGeocoder'
     App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\FakePaymentProvider'
 
-when@prod:
+when@prod: &when_prod
     services:
         App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\NominatimGeocoder'
         App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\StripePaymentProvider'
+
+when@stage: *when_prod
