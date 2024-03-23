@@ -3,6 +3,8 @@
 
 namespace Api;
 
+use App\Entity\User;
+use App\Event\UserRegistered;
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
 
@@ -32,6 +34,23 @@ class AuthCest
             'id' => 1,
             'phone' => '380990000001',
             'roles' => ['user', 'driver'],
+        ]);
+    }
+
+    public function userCanRegister(ApiTester $i): void
+    {
+        $i->sendPostAsJson('/api/auth/register', [
+            'phone' => p(1),
+            'password' => '!password!',
+        ]);
+
+        $i->seeResponse(HttpCode::CREATED, [
+            'message' => 'Account created.'
+        ]);
+        $i->seeEvent(UserRegistered::class);
+        $i->seeInRepository(User::class, [
+            'id' => 1,
+            'phone' => p(1),
         ]);
     }
 
