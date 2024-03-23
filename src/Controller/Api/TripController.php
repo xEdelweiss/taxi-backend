@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Dto\MoneyDto;
 use App\Entity\TripOrder;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -57,6 +58,8 @@ class TripController extends AbstractController
     public function createOrder(Request $request): JsonResponse
     {
         $order = new TripOrder();
+        $order->setCost(new MoneyDto(100, 'USD'));
+        // @fixme: do not allow to set status without cost estimation
         $order->setStatus('WAITING_FOR_PAYMENT');
 
         $this->entityManager->persist($order);
@@ -68,7 +71,10 @@ class TripController extends AbstractController
                 'status' => $order->getStatus(),
                 'start' => $request->getPayload()->all()['start'],
                 'end' => $request->getPayload()->all()['end'],
-                'price' => 100,
+                'price' => [
+                    'amount' => $order->getCost()->amount,
+                    'currency' => $order->getCost()->currency,
+                ],
                 'driver_arrival_time' => 10,
                 'trip_time' => 20,
             ],
