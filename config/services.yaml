@@ -24,8 +24,8 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\NominatimGeocoder'
+    App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\FakeGeocoder'
 
-when@test:
+when@prod:
     services:
-        App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\FakeGeocoder'
+        App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\NominatimGeocoder'
