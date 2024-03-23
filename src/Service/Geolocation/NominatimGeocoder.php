@@ -5,8 +5,11 @@ namespace App\Service\Geolocation;
 use App\Dto\AddressDto;
 use App\Dto\CoordinatesDto;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+#[When(env: 'prod')]
+#[When(env: 'stage')]
 class NominatimGeocoder implements GeocoderInterface
 {
     public function __construct(

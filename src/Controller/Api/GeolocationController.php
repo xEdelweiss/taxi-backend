@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Service\GeolocationServiceInterface;
+use App\Service\Geolocation\GeolocationServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
