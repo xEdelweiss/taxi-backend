@@ -115,11 +115,9 @@ class AcceptanceScenariosCest
             'data' => [
                 'id' => 1,
                 'order_id' => 1,
+                'captured' => false,
             ],
         ]);
-
-        $i->sendGet('/api/payment/fake-provider?order_id=1');
-        $i->seeResponseCodeIs(HttpCode::OK);
 
         // User: Poll for status
         $i->sendGetAsJson('/api/trip/orders/1');

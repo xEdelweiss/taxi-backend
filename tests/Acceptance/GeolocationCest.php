@@ -34,6 +34,7 @@ class GeolocationCest
     #[Examples('uk-UA', '16 станція Фонтанської дороги', 46.3932621, 30.7471715)]
     public function canGetCoordinatesByAddress(AcceptanceTester $i, Example $example): void
     {
+        // todo: seems fragile, need to find a better way to test this
         $i->amLoggedInAsNewUser(p(1));
 
         $i->haveHttpHeader('Accept-Language', $example[0]);

@@ -8,7 +8,7 @@ use App\Entity\User;
 use App\Tests\Support\AcceptanceTester;
 use Codeception\Util\HttpCode;
 
-class PaymentCest
+class StripePaymentCest
 {
     public function stripeCustomerIsCreatedForUser(AcceptanceTester $i): void
     {
@@ -24,10 +24,10 @@ class PaymentCest
             'phone' => p(1),
         ]);
         $user = $i->grabEntityFromRepository(User::class, ['id' => 1]);
-        $i->assertStringStartsWith('cus_', $user->getStripeCustomerId());
+        $i->assertStringStartsWith('cus_', $user->getPaymentAccountId());
     }
 
-    public function userCanAddPaymentMethod(AcceptanceTester $i): void
+    public function userCanGetLinkToAddPaymentMethod(AcceptanceTester $i): void
     {
         $i->sendRegisterRequest(p(1));
         $i->loginAs(p(1));
@@ -39,15 +39,17 @@ class PaymentCest
         $i->assertNotEmpty($paymentUrl);
 
         $i->sendGet($paymentUrl);
+
         $i->seeResponseCodeIs(HttpCode::OK);
-        $i->seeResponseContains('const publicKey = "');
-        $i->seeResponseContains('const clientSecret = "');
+        $response = $i->grabResponse();
+        $i->assertRegExp('/const publicKey = ".+";/', $response);
+        $i->assertRegExp('/const clientSecret = ".+";/', $response);
     }
 
     public function canHoldPaymentForTrip(AcceptanceTester $i): void
     {
         $i->haveUser(p(1));
-        $i->linkCustomerId(p(1));
+        $i->linkPaymentAccountId(p(1));
         $i->haveInRepository(TripOrder::class, [
             'cost' => 1234,
             'currency' => 'USD',
@@ -74,7 +76,7 @@ class PaymentCest
     public function canCaptureHoldedPaymentForTripe(AcceptanceTester $i): void
     {
         $i->haveUser(p(1));
-        $i->linkCustomerId(p(1));
+        $i->linkPaymentAccountId(p(1));
         $i->haveInRepository(TripOrder::class, [
             'cost' => 1234,
             'currency' => 'USD',

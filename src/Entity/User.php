@@ -36,7 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?DriverProfile $driverProfile = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $stripeCustomerId = null;
+    private ?string $paymentAccountId = null;
 
     public function __construct(string $phone)
     {
@@ -139,14 +139,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getStripeCustomerId(): ?string
+    public function getPaymentAccountId(): ?string
     {
-        return $this->stripeCustomerId;
+        return $this->paymentAccountId;
     }
 
-    public function setStripeCustomerId(?string $stripeCustomerId): static
+    public function setPaymentAccountId(?string $paymentAccountId): static
     {
-        $this->stripeCustomerId = $stripeCustomerId;
+        $this->paymentAccountId = $paymentAccountId;
 
         return $this;
     }

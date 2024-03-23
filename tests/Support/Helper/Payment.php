@@ -12,10 +12,10 @@ use App\Tests\Support\TestData;
 
 class Payment extends \Codeception\Module
 {
-    public function linkCustomerId(User|string $user, string $customerId = TestData::STRIPE_CUSTOMER_ID): User
+    public function linkPaymentAccountId(User|string $user, string $paymentAccountId = TestData::STRIPE_CUSTOMER_ID): User
     {
         $user = $this->ensureUserEntity($user);
-        $user->setStripeCustomerId($customerId);
+        $user->setPaymentAccountId($paymentAccountId);
         $this->getModule('Doctrine2')->flushToDatabase();
 
         return $user;

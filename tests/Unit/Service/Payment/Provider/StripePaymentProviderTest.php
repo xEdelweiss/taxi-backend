@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Stripe\Service as StripeService;
 use Stripe\StripeClient;
+use Symfony\Component\Routing\RouterInterface;
 
 class StripePaymentProviderTest extends TestCase
 {
@@ -18,7 +19,8 @@ class StripePaymentProviderTest extends TestCase
         $user = new User(p(1));
         $stripeClient = $this->createMock(StripeClient::class);
         $stripeClient->customers = $this->createCustomersMockWith(expectedPhone: p(1), returnId: 'cus_123');
-        $paymentProvider = new StripePaymentProvider($stripeClient);
+        $router = $this->createMock(RouterInterface::class);
+        $paymentProvider = new StripePaymentProvider($stripeClient, $router, 'pk_test_123');
 
         $customerId = $paymentProvider->createCustomer($user);
 

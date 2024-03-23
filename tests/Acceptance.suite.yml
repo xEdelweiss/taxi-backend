@@ -10,7 +10,7 @@ modules:
         - Asserts
         - Symfony:
               app_path: 'src'
-              environment: 'stage'
+              environment: '%APP_ENV%'
         - Doctrine2:
               depends: Symfony
               cleanup: true

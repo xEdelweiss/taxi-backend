@@ -19,12 +19,10 @@ final class PaymentListener
     public function onUserRegistered(UserRegistered $event): void
     {
         $user = $this->entityManager->find(User::class, $event->userId);
-        $paymentCustomerId = $this->paymentService
-            ->getPaymentProvider()
-            ->createCustomer($user);
+        $paymentCustomerId = $this->paymentService->createCustomer($user);
 
         // @fixme hardcoded property, will fail on provider change
-        $user->setStripeCustomerId($paymentCustomerId);
+        $user->setPaymentAccountId($paymentCustomerId);
 
         $this->entityManager->flush();
     }
