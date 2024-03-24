@@ -22,9 +22,9 @@ readonly class PaymentService implements PaymentServiceInterface, PaymentProvide
         return $this->paymentProvider->createCustomer($user);
     }
 
-    public function getAddPaymentLink(User $user): string
+    public function getAddPaymentLink(User $user, string $returnUrl): string
     {
-        return $this->paymentProvider->getAddPaymentLink($user);
+        return $this->paymentProvider->getAddPaymentLink($user, $returnUrl);
     }
 
     public function holdPaymentForOrder(User $user, TripOrder $order): PaymentHoldDto

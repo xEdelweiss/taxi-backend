@@ -33,16 +33,42 @@ class PaymentCest
         $i->linkPaymentAccountId(p(1));
         $i->loginAs(p(1));
 
-        $i->sendPostAsJson('/api/payment/payment-methods');
+        $i->sendPostAsJson('/api/payment/payment-methods', [
+            'return_url' => 'http://localhost/fake-app-redirect',
+        ]);
 
         $i->seeResponseCodeIs(HttpCode::CREATED);
-        $paymentUrl = $i->grabDataFromResponseByJsonPath('$.url')[0];
-        $i->assertNotEmpty($paymentUrl);
+        $i->assertNotEmpty($i->grabDataFromResponseByJsonPath('$.url')[0]);
+    }
 
-        $i->sendGet($paymentUrl);
+    public function addPaymentMethodUrlShowsForm(ApiTester $i): void
+    {
+        $i->makeAddPaymentMethodsRequestAsUser(p(1));
+
+        $i->sendGet($i->grabDataFromResponseByJsonPath('$.url')[0]);
 
         $i->seeResponseCodeIs(HttpCode::OK);
         $i->seeResponseContains('fake-add-payment-method-form');
+    }
+
+    public function userShouldBeRedirectedToAppAfterPaymentMethodAdded(ApiTester $i): void
+    {
+        $i->makeAddPaymentMethodsRequestAsUser(p(1));
+        $addPaymentMethodUrl = $i->grabDataFromResponseByJsonPath('$.url')[0];
+
+        $i->amOnPage($addPaymentMethodUrl);
+        $i->see('Add payment method');
+
+        $i->stopFollowingRedirects();
+        $i->click('Add payment method');
+
+        $i->seeInCurrentUrl('/payment-method/success');
+
+        $i->seeResponseCodeIsRedirection();
+        $i->followRedirect();
+
+        $i->seeInCurrentUrl('/fake-app-redirect');
+        $i->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function canHoldPaymentForTrip(ApiTester $i): void

@@ -32,7 +32,9 @@ class StripePaymentCest
         $i->sendRegisterRequest(p(1));
         $i->loginAs(p(1));
 
-        $i->sendPostAsJson('/api/payment/payment-methods');
+        $i->sendPostAsJson('/api/payment/payment-methods', [
+            'return_url' => 'http://localhost/fake-app-redirect',
+        ]);
 
         $i->seeResponseCodeIs(HttpCode::CREATED);
         $paymentUrl = $i->grabDataFromResponseByJsonPath('$.url')[0];

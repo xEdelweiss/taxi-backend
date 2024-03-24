@@ -20,7 +20,7 @@ use App\Entity\User;
  * @method void pause($vars = [])
  *
  * @SuppressWarnings(PHPMD)
-*/
+ */
 class ApiTester extends \Codeception\Actor
 {
     use _generated\ApiTesterActions;
@@ -46,6 +46,18 @@ class ApiTester extends \Codeception\Actor
     {
         $user = $this->haveDriver($phone);
         $this->loginAs($user);
+
+        return $user;
+    }
+
+    public function makeAddPaymentMethodsRequestAsUser(string $phone): User
+    {
+        $user = $this->haveUser($phone);
+        $this->linkPaymentAccountId($phone);
+        $this->loginAs($phone);
+        $this->sendPostAsJson('/api/payment/payment-methods', [
+            'return_url' => 'http://localhost/fake-app-redirect',
+        ]);
 
         return $user;
     }

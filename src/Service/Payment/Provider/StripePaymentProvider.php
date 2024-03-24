@@ -21,7 +21,7 @@ class StripePaymentProvider implements PaymentProviderInterface
         private readonly StripeClient    $stripeClient,
         private readonly RouterInterface $router,
         #[Autowire(env: 'STRIPE_PUBLISHABLE_KEY')]
-        private readonly string $stripePublishableKey,
+        private readonly string          $stripePublishableKey,
     ) {}
 
     public function createCustomer(User $user): string
@@ -33,22 +33,27 @@ class StripePaymentProvider implements PaymentProviderInterface
         return $customer->id;
     }
 
-    public function getAddPaymentLink(User $user): string
+    public function getAddPaymentLink(User $user, string $returnUrl): string
     {
         $customerId = $user->getPaymentAccountId();
 
         // @fixme handle paymentAccountId is null
 
-        $returnUrl = $this->router
-                ->generate('app_payment_method_success', referenceType: UrlGeneratorInterface::ABSOLUTE_URL)
-            . '?session_id={CHECKOUT_SESSION_ID}';
+        $paymentProviderReturnUrl = $this->router
+            ->generate(
+                'app_payment_method_success',
+                [
+                    'return_url' => $returnUrl,
+                ],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            ) . '&session_id={CHECKOUT_SESSION_ID}';
 
         $session = $this->stripeClient->checkout->sessions->create([
             'ui_mode' => 'embedded',
             'mode' => 'setup',
             'currency' => 'usd',
             'customer' => $customerId,
-            'return_url' => $returnUrl,
+            'return_url' => $paymentProviderReturnUrl,
             'metadata' => [
                 'user_id' => $user->getId(),
             ],
@@ -61,7 +66,7 @@ class StripePaymentProvider implements PaymentProviderInterface
 
         return $this->router->generate(
             'app_payment_method',
-            ['credentials' => (string) $credentials],
+            ['credentials' => (string)$credentials],
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
     }

@@ -23,9 +23,10 @@ class PaymentController extends AbstractController
     ) {}
 
     #[Route('/payment-methods', methods: ['POST'])]
-    public function addPaymentMethod(): JsonResponse
+    public function addPaymentMethod(Request $request): JsonResponse
     {
-        $url = $this->paymentService->getAddPaymentLink($this->getUser());
+        $returnUrl = $request->getPayload()->get('return_url');
+        $url = $this->paymentService->getAddPaymentLink($this->getUser(), $returnUrl);
 
         return $this->json([
             'url' => $url,

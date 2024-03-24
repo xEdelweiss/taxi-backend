@@ -24,37 +24,30 @@ class PaymentController extends AbstractController
         }
 
         if ($credentials->provider === FakePaymentProvider::class) {
-            return $this->render('payment/add-payment-method/fake.html.twig');
+            return $this->render('payment/add-payment-method/fake.html.twig', [
+                'paymentReturnUrl' => explode('?', $credentials->get('return_url'))[0],
+                'appReturnUrl' => Request::create($credentials->get('return_url'))->query->get('return_url'),
+            ]);
         }
 
         throw $this->createNotFoundException();
     }
 
     #[Route('/payment-method/success', name: 'app_payment_method_success', methods: ['GET'])]
-    public function paymentSuccess(Request $request, StripeClient $stripe)
+    public function paymentSuccess(Request $request)
     {
-        // @fixme incomplete method
+        // $sessionId = $request->query->get('session_id');
+        // $session = $stripe->checkout->sessions->retrieve($sessionId);
+        // $userId = $session->metadata->user_id;
+        // $paymentIntent = $stripe->paymentIntents->retrieve($session->payment_intent);
 
-        try {
-            $sessionId = $request->query->get('session_id');
-            $session = $stripe->checkout->sessions->retrieve($sessionId);
-            $userId = $session->metadata->user_id;
-            $paymentIntent = $stripe->paymentIntents->retrieve($session->payment_intent);
-            dump($sessionId, $session, $userId, $paymentIntent);
-        } catch (\Throwable $e) {
-            dump($e);
-        }
-
-        dd('SUCCESS');
+        return $this->redirect($request->get('return_url'));
     }
 
     #[Route('/payment/cancel', name: 'payment_cancel', methods: ['GET'])]
-    public function paymentCancel(Request $request)
+    public function paymentCancel()
     {
-        // @fixme incomplete method
-
-        dump($request->query->all());
-        dd('CANCEL');
+        throw new \RuntimeException('Not implemented');
     }
 
 
@@ -73,11 +66,8 @@ class PaymentController extends AbstractController
     }
 
     #[Route('/holds/success', name: 'app_payment_hold_return', methods: ['GET'])]
-    public function holdSuccess(Request $request)
+    public function holdSuccess()
     {
-        // @fixme incomplete method
-
-        dump($request->query->all());
-        dd('HOLD SUCCESS');
+        throw new \RuntimeException('Not implemented');
     }
 }

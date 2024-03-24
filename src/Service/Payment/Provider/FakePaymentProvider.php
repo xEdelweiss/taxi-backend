@@ -20,13 +20,19 @@ class FakePaymentProvider implements PaymentProviderInterface
         return 'fake-cid-' . $user->getPhone();
     }
 
-    public function getAddPaymentLink(User $user): string
+    public function getAddPaymentLink(User $user, string $returnUrl): string
     {
-        $credentials = new PaymentCredentialsDto(static::class, []);
+        $credentials = new PaymentCredentialsDto(static::class, [
+            'return_url' => $this->router->generate(
+                'app_payment_method_success',
+                ['return_url' => $returnUrl],
+                referenceType: UrlGeneratorInterface::ABSOLUTE_URL
+            ),
+        ]);
 
         return $this->router->generate(
             'app_payment_method',
-            ['credentials' => (string) $credentials],
+            ['credentials' => (string)$credentials],
             referenceType: UrlGeneratorInterface::ABSOLUTE_URL
         );
     }
@@ -46,7 +52,7 @@ class FakePaymentProvider implements PaymentProviderInterface
         preg_match('/oid-(?P<orderId>\d+)/', $hold->id, $matches);
 
         if (isset($matches['orderId'])) {
-            return (int) $matches['orderId'];
+            return (int)$matches['orderId'];
         }
 
         throw new \InvalidArgumentException('Invalid payment hold id');
