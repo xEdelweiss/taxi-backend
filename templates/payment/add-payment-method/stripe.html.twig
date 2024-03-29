@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Stripe Payment Page Recipe</title>
+    <meta name="description" content="A demo of the Stripe Payment Intents API" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+
+<body style="margin: 2rem">
+    <div id="checkout"></div>
+
+    <script>
+      const publicKey = {{ publicKey|json_encode|raw }};
+      const clientSecret = {{ clientSecret|json_encode|raw }};
+      const stripe = Stripe(publicKey);
+
+      const checkout = stripe.initEmbeddedCheckout({
+        fetchClientSecret: () => Promise.resolve(clientSecret),
+      }).then(checkout => checkout.mount('#checkout'));
+    </script>
+</body>
+</html>

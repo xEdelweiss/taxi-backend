@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Stripe Payment Page Recipe</title>
+    <meta name="description" content="A demo of the Stripe Payment Intents API" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+
+<body style="margin: 2rem">
+    <form method="GET" action="{{ paymentReturnUrl }}">
+        <p>fake-add-payment-method-form</p>
+        <div id="card-element"></div>
+
+        <input type="hidden" name="return_url" value="{{ appReturnUrl }}">
+        <button id="submit">Add payment method</button>
+    </form>
+</body>
+</html>

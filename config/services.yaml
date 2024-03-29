@@ -6,6 +6,7 @@
 parameters:
     env(MONGODB_URL): ''
     env(MONGODB_DB): ''
+    env(OSR_API_URL): ''
 
 services:
     # default configuration for services in *this* file
@@ -21,11 +22,21 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Dto/'
+            - '../src/Service/Payment/Dto/'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\FakeGeocoder'
+    Stripe\StripeClient:
+        arguments:
+            - '%env(STRIPE_SECRET_KEY)%'
 
-when@prod:
+    App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\FakeGeocoder'
+    App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\FakePaymentProvider'
+
+when@prod: &when_prod
     services:
         App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\NominatimGeocoder'
+        App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\StripePaymentProvider'
+
+when@stage: *when_prod

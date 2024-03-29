@@ -3,13 +3,14 @@
 # Suite for API tests
 # Emulate web requests and make application process them
 
-actor: ApiTester
+actor: AcceptanceTester
 modules:
     enabled:
+        - \App\Tests\Support\Helper\AcceptanceGuard:
         - Asserts
         - Symfony:
               app_path: 'src'
-              environment: 'test'
+              environment: '%APP_ENV%'
         - Doctrine2:
               depends: Symfony
               cleanup: true

@@ -13,6 +13,8 @@ class AcceptanceScenariosCest
         $i->haveUser(p(1));
         $i->haveDriver(p(2)); // driver
 
+        // todo: user adds payment method
+
         // User: Moves to the location
         $i->loginAs(p(1));
         $i->sendPost('/api/tracking/locations', [
@@ -79,9 +81,10 @@ class AcceptanceScenariosCest
             'start' => $START_LOCATION,
             'end' => $END_LOCATION,
         ]);
-        $i->seeResponse(HttpCode::OK, [
+        $i->seeResponse(HttpCode::CREATED, [
             'data' => [
-                'price' => 100,
+                'cost' => 39540,
+                'currency' => 'USD'
             ],
         ]);
 
@@ -96,27 +99,26 @@ class AcceptanceScenariosCest
                 'status' => 'WAITING_FOR_PAYMENT',
                 'start' => $START_LOCATION,
                 'end' => $END_LOCATION,
-                'price' => 100,
+                'price' => [
+                    'amount' => 100,
+                    'currency' => 'USD',
+                ],
                 'driver_arrival_time' => 10,
                 'trip_time' => 20,
             ],
         ]);
 
-        // User: Pay for order
-        $i->sendPostAsJson('/api/payment/payments', [
+        // User: Hold payment for the order
+        $i->sendPostAsJson('/api/payment/holds', [
             'order_id' => 1,
         ]);
         $i->seeResponseCodeIs(HttpCode::CREATED, [
             'data' => [
                 'id' => 1,
                 'order_id' => 1,
-                'amount' => 100,
-                'url' => '/api/payment/fake-provider?order_id=1',
+                'captured' => false,
             ],
         ]);
-
-        $i->sendGet('/api/payment/fake-provider?order_id=1');
-        $i->seeResponseCodeIs(HttpCode::OK);
 
         // User: Poll for status
         $i->sendGetAsJson('/api/trip/orders/1');
