@@ -9,6 +9,9 @@ class AcceptanceGuard extends \Codeception\Module
     public function _before(TestInterface $test)
     {
         $condition = $_ENV['ALLOW_ACCEPTANCE_TESTS'];
-        $this->assertTrue($condition === 'true' || $condition === '1', 'Acceptance tests are disabled');
+
+        if ($condition !== 'true' && $condition !== '1') {
+            $this->markTestSkipped('Acceptance tests are disabled');
+        }
     }
 }

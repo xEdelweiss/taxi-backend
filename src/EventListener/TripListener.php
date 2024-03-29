@@ -4,6 +4,7 @@ namespace App\EventListener;
 
 use App\Entity\TripOrder;
 use App\Event\Payment\PaymentHeldForOrder;
+use App\Service\Trip\Enum\TripStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
@@ -22,12 +23,13 @@ final class TripListener
             throw new \InvalidArgumentException("Order [{$event->orderId}] not found");
         }
 
-        if ($order->getStatus() !== 'WAITING_FOR_PAYMENT') {
+        if ($order->getStatus() !== TripStatus::WaitingForPayment) {
             // @todo: should move to PaymentService?
             throw new \LogicException('Order should be in WAITING_FOR_PAYMENT status');
         }
 
-        $order->setStatus('WAITING_FOR_DRIVER');
+        $order->setPaymentHoldId($event->paymentHoldId);
+        $order->setStatus(TripStatus::WaitingForDriver);
 
         $this->entityManager->flush();
     }

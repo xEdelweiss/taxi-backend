@@ -5,6 +5,7 @@ namespace App\Tests\Acceptance;
 
 use App\Entity\TripOrder;
 use App\Entity\User;
+use App\Service\Trip\Enum\TripStatus;
 use App\Tests\Support\AcceptanceTester;
 use Codeception\Util\HttpCode;
 
@@ -55,7 +56,7 @@ class StripePaymentCest
         $i->haveInRepository(TripOrder::class, [
             'cost' => 1234,
             'currency' => 'USD',
-            'status' => 'WAITING_FOR_PAYMENT',
+            'status' => TripStatus::WaitingForPayment,
         ]);
 
         $i->loginAs(p(1));
@@ -75,14 +76,14 @@ class StripePaymentCest
         $i->assertNotEmpty($i->grabDataFromResponseByJsonPath('$.data.id')[0]);
     }
 
-    public function canCaptureHoldedPaymentForTripe(AcceptanceTester $i): void
+    public function canCaptureHeldPaymentForTripe(AcceptanceTester $i): void
     {
         $i->haveUser(p(1));
         $i->linkPaymentAccountId(p(1));
         $i->haveInRepository(TripOrder::class, [
             'cost' => 1234,
             'currency' => 'USD',
-            'status' => 'WAITING_FOR_PAYMENT',
+            'status' => TripStatus::WaitingForPayment,
         ]);
         $i->loginAs(p(1));
         $i->sendPostAsJson('/api/payment/holds', [

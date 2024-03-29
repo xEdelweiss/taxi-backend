@@ -5,6 +5,7 @@ namespace App\Tests\Api;
 
 use App\Entity\TripOrder;
 use App\Entity\User;
+use App\Service\Trip\Enum\TripStatus;
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
 
@@ -78,7 +79,7 @@ class PaymentCest
         $i->haveInRepository(TripOrder::class, [
             'cost' => 1234,
             'currency' => 'USD',
-            'status' => 'WAITING_FOR_PAYMENT',
+            'status' => TripStatus::WaitingForPayment,
         ]);
 
         $i->loginAs(p(1));
@@ -97,14 +98,14 @@ class PaymentCest
         ]);
     }
 
-    public function canCaptureHoldedPaymentForTripe(ApiTester $i): void
+    public function canCaptureHeldPaymentForTripe(ApiTester $i): void
     {
         $i->haveUser(p(1));
         $i->linkPaymentAccountId(p(1));
         $i->haveInRepository(TripOrder::class, [
             'cost' => 1234,
             'currency' => 'USD',
-            'status' => 'WAITING_FOR_PAYMENT',
+            'status' => TripStatus::WaitingForPayment,
         ]);
         $i->loginAs(p(1));
         $i->sendPostAsJson('/api/payment/holds', [

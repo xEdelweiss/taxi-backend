@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Dto\MoneyDto;
 use App\Entity\TripOrder;
+use App\Service\Trip\Enum\TripStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -60,7 +61,7 @@ class TripController extends AbstractController
         $order = new TripOrder();
         $order->setCost(new MoneyDto(100, 'USD'));
         // @fixme: do not allow to set status without cost estimation
-        $order->setStatus('WAITING_FOR_PAYMENT');
+        $order->setStatus(TripStatus::WaitingForPayment);
 
         $this->entityManager->persist($order);
         $this->entityManager->flush();
@@ -84,7 +85,8 @@ class TripController extends AbstractController
     #[Route('/orders/{order}', methods: ['PUT'])]
     public function updateOrder(Request $request, TripOrder $order): JsonResponse
     {
-        $order->setStatus($request->getPayload()->get('status'));
+        $newStatus = TripStatus::from($request->getPayload()->get('status'));
+        $order->setStatus($newStatus);
 
         $this->entityManager->flush();
 
