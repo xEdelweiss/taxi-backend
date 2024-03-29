@@ -25,8 +25,8 @@ class NavigationController extends AbstractController
             $payload['start']['longitude'],
         ];
         $finish = [
-            $payload['finish']['latitude'],
-            $payload['finish']['longitude'],
+            $payload['end']['latitude'],
+            $payload['end']['longitude'],
         ];
 
         $route = $this->navigationService->calculateRoute($start, $finish);

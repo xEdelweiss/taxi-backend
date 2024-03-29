@@ -81,9 +81,10 @@ class AcceptanceScenariosCest
             'start' => $START_LOCATION,
             'end' => $END_LOCATION,
         ]);
-        $i->seeResponse(HttpCode::OK, [
+        $i->seeResponse(HttpCode::CREATED, [
             'data' => [
-                'price' => 100,
+                'cost' => 39540,
+                'currency' => 'USD'
             ],
         ]);
 

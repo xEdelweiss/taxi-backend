@@ -1,20 +1,20 @@
 <?php
 
 
-namespace App\Tests\Acceptance;
+namespace App\Tests\Api;
 
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
 use PHPUnit\Framework\Attributes\Test;
 
-class NavigationCest
+class CostCest
 {
     #[Test]
-    public function canCalculateRouteBetweenPoints(ApiTester $i): void
+    public function canEstimateCostByStartAndFinishLocations(ApiTester $i): void
     {
-        $i->amLoggedInAsNewDriver(p(1));
+        $i->amLoggedInAsNewUser(p(1));
 
-        $i->sendPostAsJson('/api/navigation/routes', [
+        $i->sendPostAsJson('/api/cost/estimations', [
             'start' => [
                 'latitude' => 46.4273814334286,
                 'longitude' => 30.751279752912698,
@@ -27,12 +27,10 @@ class NavigationCest
             ],
         ]);
 
-        $i->seeResponse(HttpCode::OK, [
+        $i->seeResponse(HttpCode::CREATED, [
             'data' => [
-                'route' => [
-                    'distance' => 634.5,
-                    'duration' => 68.3,
-                ],
+                'cost' => 634.5 * 10,
+                'currency' => 'USD',
             ],
         ]);
     }
