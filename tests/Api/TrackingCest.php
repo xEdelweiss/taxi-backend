@@ -25,6 +25,29 @@ class TrackingCest
 
         $i->seeInCollection(TrackingLocation::class, [
             'userId' => 1,
+            'role' => 'user',
+            'coordinates.latitude' => 46.42738,
+            'coordinates.longitude' => 30.75128,
+        ]);
+    }
+
+    public function driverCanTrackLocation(ApiTester $i): void
+    {
+        $i->amLoggedInAsNewDriver(p(1));
+        $i->seeNumElementsInCollection(TrackingLocation::class, 0);
+
+        $i->sendPost('/api/tracking/locations', [
+            'latitude' => 46.4273814334286,
+            'longitude' => 30.751279752912698,
+        ]);
+
+        $i->clearEntityManager();
+
+        $i->seeResponse(HttpCode::NO_CONTENT);
+
+        $i->seeInCollection(TrackingLocation::class, [
+            'userId' => 1,
+            'role' => 'driver',
             'coordinates.latitude' => 46.42738,
             'coordinates.longitude' => 30.75128,
         ]);
