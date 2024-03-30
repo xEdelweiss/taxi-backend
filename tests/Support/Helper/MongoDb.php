@@ -33,6 +33,12 @@ class MongoDb extends \Codeception\Module
             ->seeInCollection($this->getCollectionNameFromClass($collection), $criteria);
     }
 
+    public function grabFromCollection(string $collection, array $criteria = []): array|object|null
+    {
+        return $this->getModule('MongoDb')
+            ->grabFromCollection($this->getCollectionNameFromClass($collection), $criteria);
+    }
+
     public function seeNumElementsInCollection(string $collection, int $expected, array $criteria = []): void
     {
         $this->getModule('MongoDb')

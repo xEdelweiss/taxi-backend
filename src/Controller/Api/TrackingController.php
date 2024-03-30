@@ -28,7 +28,8 @@ class TrackingController extends AbstractController
         $location ??= new TrackingLocation(
             $this->getUser()->getId(),
             $latitude,
-            $longitude
+            $longitude,
+            $this->getUser()->isDriver() ? 'driver' : 'user',
         );
 
         $location->setCoordinates(

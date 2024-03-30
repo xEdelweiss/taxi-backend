@@ -9,6 +9,19 @@ use Codeception\Util\HttpCode;
 
 class TrackingCest
 {
+    public function trackingHelperWorks(ApiTester $i): void
+    {
+        $user = $i->haveUser(p(1));
+        $i->moveToLocation($user, 46.4273814334286, 30.751279752912698);
+
+        $i->seeInCollection(TrackingLocation::class, [
+            'userId' => 1,
+            'role' => 'user',
+            'coordinates.latitude' => 46.42738,
+            'coordinates.longitude' => 30.75128,
+        ]);
+    }
+
     public function userCanTrackLocation(ApiTester $i): void
     {
         $i->amLoggedInAsNewUser(p(1));
@@ -25,8 +38,31 @@ class TrackingCest
 
         $i->seeInCollection(TrackingLocation::class, [
             'userId' => 1,
-            'coordinates.latitude' => 46.4273814334286,
-            'coordinates.longitude' => 30.751279752912698,
+            'role' => 'user',
+            'coordinates.latitude' => 46.42738,
+            'coordinates.longitude' => 30.75128,
+        ]);
+    }
+
+    public function driverCanTrackLocation(ApiTester $i): void
+    {
+        $i->amLoggedInAsNewDriver(p(1));
+        $i->seeNumElementsInCollection(TrackingLocation::class, 0);
+
+        $i->sendPost('/api/tracking/locations', [
+            'latitude' => 46.4273814334286,
+            'longitude' => 30.751279752912698,
+        ]);
+
+        $i->clearEntityManager();
+
+        $i->seeResponse(HttpCode::NO_CONTENT);
+
+        $i->seeInCollection(TrackingLocation::class, [
+            'userId' => 1,
+            'role' => 'driver',
+            'coordinates.latitude' => 46.42738,
+            'coordinates.longitude' => 30.75128,
         ]);
     }
 
@@ -50,8 +86,8 @@ class TrackingCest
         $i->seeNumElementsInCollection(TrackingLocation::class, 1);
         $i->seeInCollection(TrackingLocation::class, [
             'userId' => 1,
-            'coordinates.latitude' => 46.423173199108106,
-            'coordinates.longitude' => 30.74705368639186,
+            'coordinates.latitude' => 46.42317,
+            'coordinates.longitude' => 30.74705,
         ]);
     }
 }

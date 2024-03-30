@@ -31,6 +31,9 @@ class TripOrder
     #[ORM\Embedded(class: Location::class)]
     private Location $end;
 
+    #[ORM\OneToOne(mappedBy: 'tripOrder', cascade: ['persist', 'remove'])]
+    private ?TripOrderRequest $tripOrderRequest = null;
+
     public function __construct()
     {
         $this->status = TripStatus::Initial;
@@ -145,5 +148,10 @@ class TripOrder
         if ($next === TripStatus::WaitingForDriver && !$this->getPaymentHoldId()) {
             throw new \LogicException('Cannot set status to WaitingForDriver without active payment hold');
         }
+    }
+
+    public function getTripOrderRequest(): ?TripOrderRequest
+    {
+        return $this->tripOrderRequest;
     }
 }

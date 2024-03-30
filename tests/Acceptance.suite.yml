@@ -27,6 +27,8 @@ modules:
               depends: Symfony
         - \App\Tests\Support\Helper\MongoDb:
               depends: Symfony
+        - \App\Tests\Support\Helper\Responses:
+              depends: REST
         - \App\Tests\Support\Helper\Payment:
         - \App\Tests\Support\Helper\Entities:
               depends:

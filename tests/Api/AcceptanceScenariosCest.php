@@ -4,6 +4,7 @@
 namespace App\Tests\Api;
 
 use App\Event\Payment\PaymentHeldForOrder;
+use App\Event\TripOrderPublished;
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
 
@@ -98,8 +99,16 @@ class AcceptanceScenariosCest
             'data' => [
                 'id' => 1,
                 'status' => 'WAITING_FOR_PAYMENT',
-                'start' => $START_LOCATION,
-                'end' => $END_LOCATION,
+                'start' => [
+                    'latitude' => 46.42738,
+                    'longitude' => 30.75128,
+                    'address' => '7th st. Fontanskoyi dorohy',
+                ],
+                'end' => [
+                    'latitude' => 46.45154,
+                    'longitude' => 30.74398,
+                    'address' => 'Sehedska Street, 5',
+                ],
                 'price' => [
                     'amount' => 39540,
                     'currency' => 'USD',
@@ -121,6 +130,7 @@ class AcceptanceScenariosCest
         ]);
 
         $i->seeEvent(PaymentHeldForOrder::class);
+        $i->seeEvent(TripOrderPublished::class);
 
         // User: Poll for status
         $i->sendGetAsJson('/api/trip/orders/1');
@@ -139,8 +149,16 @@ class AcceptanceScenariosCest
                 [
                     'id' => 1,
                     'status' => 'WAITING_FOR_DRIVER',
-                    'start' => $START_LOCATION,
-                    'end' => $END_LOCATION,
+                    'start' => [
+                        'latitude' => 46.42738,
+                        'longitude' => 30.75128,
+                        'address' => '7th st. Fontanskoyi dorohy',
+                    ],
+                    'end' => [
+                        'latitude' => 46.45154,
+                        'longitude' => 30.74398,
+                        'address' => 'Sehedska Street, 5',
+                    ],
                 ],
             ],
         ]);

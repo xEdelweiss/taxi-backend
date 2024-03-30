@@ -25,15 +25,6 @@ class ApiTester extends \Codeception\Actor
 {
     use _generated\ApiTesterActions;
 
-    public function seeResponse(int $code, array $json = []): void
-    {
-        $this->seeResponseCodeIs($code);
-
-        if ($json !== []) {
-            $this->seeResponseContainsJson($json);
-        }
-    }
-
     public function amLoggedInAsNewUser(string $phone = '380990000001'): User
     {
         $user = $this->haveUser($phone);
