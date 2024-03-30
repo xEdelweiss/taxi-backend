@@ -2,9 +2,11 @@
 
 namespace App\Controller\Api;
 
+use App\Dto\RouteDto;
 use App\Entity\Embeddable\Location;
 use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
+use App\Entity\TripOrderRequest;
 use App\Service\CostService;
 use App\Service\NavigationService;
 use App\Service\Trip\Enum\TripStatus;
@@ -27,23 +29,24 @@ class TripController extends AbstractController
     #[Route('/orders', methods: ['GET'])]
     public function listOrders(): JsonResponse
     {
-        $orders = $this->entityManager->getRepository(TripOrder::class)->findAll();
+        if (!$this->getUser()->isDriver()) {
+            throw new \RuntimeException('Not implemented for users yet.');
+        }
+
+        // @todo what about active orders for driver/user?
+        $orderRequests = $this->getUser()->getDriverProfile()->getTripOrderRequest();
+        $orderRequests = $orderRequests ? [$orderRequests] : [];
 
         return $this->json([
-            'data' => array_map(static fn(TripOrder $order) => [
-                'id' => $order->getId(),
-                'status' => $order->getStatus(),
-                'start' => [
-                    'latitude' => 46.42738,
-                    'longitude' => 30.75128,
-                    'address' => '7th st. Fontanskoyi dorohy',
-                ],
-                'end' => [
-                    'latitude' => 46.45153,
-                    'longitude' => 30.74398,
-                    'address' => 'Sehedska Street, 5',
-                ],
-            ], $orders),
+            'data' => array_map(fn(TripOrderRequest $orderRequest) => [
+                'id' => $orderRequest->getTripOrder()->getId(),
+                'status' => $orderRequest->getTripOrder()->getStatus(),
+                'start' => $this->locationToArray($orderRequest->getTripOrder()->getStart()),
+                'end' => $this->locationToArray($orderRequest->getTripOrder()->getEnd()),
+
+                // @fixme is it correct to calculate route time here?
+                'trip_time' => $this->calculateRoute($orderRequest->getTripOrder())->duration,
+            ], $orderRequests),
         ]);
     }
 
@@ -87,16 +90,8 @@ class TripController extends AbstractController
             'data' => [
                 'id' => $order->getId(),
                 'status' => $order->getStatus(),
-                'start' => [ // @fixme update from route
-                    'latitude' => $order->getStart()->getLatitude(),
-                    'longitude' => $order->getStart()->getLongitude(),
-                    'address' => $order->getStart()->getAddress()
-                ],
-                'end' => [ // @fixme update from route
-                    'latitude' => $order->getEnd()->getLatitude(),
-                    'longitude' => $order->getEnd()->getLongitude(),
-                    'address' => $order->getEnd()->getAddress()
-                ],
+                'start' => $this->locationToArray($order->getStart()),
+                'end' => $this->locationToArray($order->getEnd()),
                 'price' => [
                     'amount' => $order->getCost()->getAmount(),
                     'currency' => $order->getCost()->getCurrency(),
@@ -120,5 +115,22 @@ class TripController extends AbstractController
                 'status' => $order->getStatus(),
             ],
         ]);
+    }
+
+    private function locationToArray(Location $location): array
+    {
+        return [
+            'latitude' => $location->getLatitude(),
+            'longitude' => $location->getLongitude(),
+            'address' => $location->getAddress(),
+        ];
+    }
+
+    private function calculateRoute(TripOrder $order): RouteDto
+    {
+        return $this->navigationService->calculateRoute(
+            [$order->getStart()->getLatitude(), $order->getStart()->getLongitude()],
+            [$order->getEnd()->getLatitude(), $order->getEnd()->getLongitude()]
+        );
     }
 }

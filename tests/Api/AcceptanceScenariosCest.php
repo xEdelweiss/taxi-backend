@@ -4,6 +4,7 @@
 namespace App\Tests\Api;
 
 use App\Event\Payment\PaymentHeldForOrder;
+use App\Event\TripOrderPublished;
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
 
@@ -129,6 +130,7 @@ class AcceptanceScenariosCest
         ]);
 
         $i->seeEvent(PaymentHeldForOrder::class);
+        $i->seeEvent(TripOrderPublished::class);
 
         // User: Poll for status
         $i->sendGetAsJson('/api/trip/orders/1');
@@ -153,7 +155,7 @@ class AcceptanceScenariosCest
                         'address' => '7th st. Fontanskoyi dorohy',
                     ],
                     'end' => [
-                        'latitude' => 46.45153,
+                        'latitude' => 46.45154,
                         'longitude' => 30.74398,
                         'address' => 'Sehedska Street, 5',
                     ],
