@@ -50,8 +50,8 @@ class PaymentController extends AbstractController
             'data' => [
                 'id' => $hold->id,
                 'order_id' => $order->getId(),
-                'amount' => $order->getCost()->amount,
-                'currency' => $order->getCost()->currency,
+                'amount' => $order->getCost()->getAmount(),
+                'currency' => $order->getCost()->getCurrency(),
                 'captured' => false,
             ],
         ], Response::HTTP_CREATED);
@@ -82,8 +82,8 @@ class PaymentController extends AbstractController
             'data' => [
                 'id' => $hold->id,
                 'order_id' => $order->getId(),
-                'amount' => $order->getCost()->amount,
-                'currency' => $order->getCost()->currency,
+                'amount' => $order->getCost()->getAmount(),
+                'currency' => $order->getCost()->getCurrency(),
                 'captured' => true,
             ],
         ]);

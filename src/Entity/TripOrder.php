@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Dto\MoneyDto;
+use App\Entity\Embeddable\Money;
 use App\Repository\TripOrderRepository;
 use App\Service\Trip\Enum\TripStatus;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,11 +18,8 @@ class TripOrder
     #[ORM\Column(length: 64)]
     private TripStatus $status;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $cost = null;
-
-    #[ORM\Column(type: 'string', length: 3, nullable: true)]
-    private ?string $currency = null;
+    #[ORM\Embedded(class: Money::class)]
+    private Money $cost;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $paymentHoldId = null;
@@ -30,6 +27,7 @@ class TripOrder
     public function __construct()
     {
         $this->status = TripStatus::Initial;
+        $this->cost = new Money(0, 'USD');
     }
 
     public function getId(): ?int
@@ -51,21 +49,16 @@ class TripOrder
         return $this;
     }
 
-    public function setCost(MoneyDto $money): static
+    public function setCost(Money $money): static
     {
-        $this->cost = $money->amount;
-        $this->currency = $money->currency;
+        $this->cost = $money;
 
         return $this;
     }
 
-    public function getCost(): ?MoneyDto
+    public function getCost(): Money
     {
-        if ($this->cost === null) {
-            return null;
-        }
-
-        return new MoneyDto($this->cost, $this->currency);
+        return $this->cost;
     }
 
     public function getPaymentHoldId(): ?string
@@ -109,7 +102,7 @@ class TripOrder
             throw new \InvalidArgumentException("Invalid TripOrder status change: expected [{$expectedNext->value}], got [{$next->value}]");
         }
 
-        if ($next === TripStatus::WaitingForPayment && !$this->getCost()) {
+        if ($next === TripStatus::WaitingForPayment && $this->getCost()->getAmount() === 0) {
             throw new \LogicException('Cannot set status to WaitingForPayment without cost estimation');
         }
 

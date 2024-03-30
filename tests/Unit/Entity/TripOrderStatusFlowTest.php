@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Entity;
 
-use App\Dto\MoneyDto;
+use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
 use App\Service\Trip\Enum\TripStatus;
 use PHPUnit\Framework\Attributes\Test;
@@ -27,7 +27,7 @@ class TripOrderStatusFlowTest extends TestCase
     {
         $order = $this->makeTripOrder(TripStatus::Initial);
 
-        $order->setCost(new MoneyDto(100, 'USD'));
+        $order->setCost(new Money(100, 'USD'));
         $order->setStatus(TripStatus::WaitingForPayment);
 
         $this->assertSame(TripStatus::WaitingForPayment, $order->getStatus());
@@ -187,10 +187,7 @@ class TripOrderStatusFlowTest extends TestCase
             TripStatus::Completed,
         ], true)) {
             $reflectionProperty = $reflectionClass->getProperty('cost');
-            $reflectionProperty->setValue($tripOrder, 100);
-
-            $reflectionProperty = $reflectionClass->getProperty('currency');
-            $reflectionProperty->setValue($tripOrder, 'USD');
+            $reflectionProperty->setValue($tripOrder, new Money(100, 'USD'));
         }
 
         if (in_array($status, [

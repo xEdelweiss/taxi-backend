@@ -77,8 +77,8 @@ class StripePaymentProvider implements PaymentProviderInterface
         $defaultPaymentMethod = $this->getDefaultPaymentMethod($customerId);
 
         $paymentIntent = $this->stripeClient->paymentIntents->create([
-            'amount' => $order->getCost()->amount,
-            'currency' => $order->getCost()->currency,
+            'amount' => $order->getCost()->getAmount(),
+            'currency' => $order->getCost()->getCurrency(),
             'customer' => $customerId,
             'confirm' => true,
             'payment_method' => $defaultPaymentMethod->id,

@@ -3,6 +3,7 @@
 
 namespace App\Tests\Api;
 
+use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
 use App\Entity\User;
 use App\Service\Trip\Enum\TripStatus;
@@ -77,8 +78,7 @@ class PaymentCest
         $i->haveUser(p(1));
         $i->linkPaymentAccountId(p(1));
         $i->haveInRepository(TripOrder::class, [
-            'cost' => 1234,
-            'currency' => 'USD',
+            'cost' => new Money(1234, 'USD'),
             'status' => TripStatus::WaitingForPayment,
         ]);
 
@@ -103,8 +103,7 @@ class PaymentCest
         $i->haveUser(p(1));
         $i->linkPaymentAccountId(p(1));
         $i->haveInRepository(TripOrder::class, [
-            'cost' => 1234,
-            'currency' => 'USD',
+            'cost' => new Money(1234, 'USD'),
             'status' => TripStatus::WaitingForPayment,
         ]);
         $i->loginAs(p(1));

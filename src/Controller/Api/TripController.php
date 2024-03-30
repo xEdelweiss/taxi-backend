@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Dto\MoneyDto;
+use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
 use App\Service\CostService;
 use App\Service\NavigationService;
@@ -73,7 +73,7 @@ class TripController extends AbstractController
         ];
 
         $route = $this->navigationService->calculateRoute($start, $end);
-        $cost = new MoneyDto($this->costService->calculateCost($route), 'USD');
+        $cost = new Money($this->costService->calculateCost($route), 'USD');
 
         $order = new TripOrder();
         $order->setCost($cost);
@@ -89,8 +89,8 @@ class TripController extends AbstractController
                 'start' => $payload['start'], // @fixme update from route
                 'end' => $payload['end'], // @fixme update from route
                 'price' => [
-                    'amount' => $order->getCost()->amount,
-                    'currency' => $order->getCost()->currency,
+                    'amount' => $order->getCost()->getAmount(),
+                    'currency' => $order->getCost()->getCurrency(),
                 ],
                 'driver_arrival_time' => 10,
                 'trip_time' => $route->duration,
