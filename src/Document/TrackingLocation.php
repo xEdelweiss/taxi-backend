@@ -2,9 +2,11 @@
 
 namespace App\Document;
 
+use App\Repository\TrackingLocationRepository;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 
-#[ODM\Document]
+#[ODM\Document(repositoryClass: TrackingLocationRepository::class)]
+#[ODM\Index(keys: ['coordinates' => '2dsphere'])]
 class TrackingLocation
 {
     #[ODM\Id]

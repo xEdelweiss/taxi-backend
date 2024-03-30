@@ -9,6 +9,19 @@ use Codeception\Util\HttpCode;
 
 class TrackingCest
 {
+    public function trackingHelperWorks(ApiTester $i): void
+    {
+        $user = $i->haveUser(p(1));
+        $i->moveToLocation($user, 46.4273814334286, 30.751279752912698);
+
+        $i->seeInCollection(TrackingLocation::class, [
+            'userId' => 1,
+            'role' => 'user',
+            'coordinates.latitude' => 46.42738,
+            'coordinates.longitude' => 30.75128,
+        ]);
+    }
+
     public function userCanTrackLocation(ApiTester $i): void
     {
         $i->amLoggedInAsNewUser(p(1));
