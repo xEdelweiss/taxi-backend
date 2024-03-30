@@ -13,9 +13,7 @@ class OpenStreetRouteClientTest extends KernelTestCase
         $client = new OpenStreetRouterClient(new CurlHttpClient(), 'http://localhost:8090');
         $route = $client->fetchRoute([46.4273814334286, 30.751279752912698], [46.423173199108106, 30.74705368639186]);
 
-        $this->assertSame([
-            'distance' => 634.5,
-            'duration' => 68.3,
-        ], $route);
+        $this->assertSame(634.5, $route->distance);
+        $this->assertSame(68.3, $route->duration);
     }
 }
