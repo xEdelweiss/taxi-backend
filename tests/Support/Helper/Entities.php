@@ -27,7 +27,7 @@ class Entities extends \Codeception\Module
         $user = new User($phone);
         $user->setPassword('$2y$13$aWqkhhvxijEHLqvhf2eoPulxi74ewNAJCSDpHTeNemoJ/6y/jXqH.'); // !password!
         $user->setDriverProfile(
-            (new DriverProfile())
+            (new DriverProfile($user))
                 ->setOnline($online)
         );
 

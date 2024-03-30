@@ -3,30 +3,38 @@
 namespace App\Tests\Integration\Repository;
 
 use App\Document\TrackingLocation;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class TrackingLocationRepositoryTest extends KernelTestCase
 {
-    #[Test]
-    public function findClosestDriversWorks(): void
+    private DocumentManager $documentManager;
+
+    protected function setUp(): void
     {
+        parent::setUp();
         $kernel = self::bootKernel();
-        $documentManager = $kernel->getContainer()->get('doctrine_mongodb.odm.default_document_manager');
-        $documentManager->createQueryBuilder(TrackingLocation::class)
+
+        $this->documentManager = $kernel->getContainer()->get('doctrine_mongodb.odm.default_document_manager');
+        $this->documentManager->createQueryBuilder(TrackingLocation::class)
             ->remove()
             ->getQuery()
             ->execute();
+    }
 
+    #[Test]
+    public function findClosestDriversWorks(): void
+    {
         $location1 = new TrackingLocation(1, 46.43045, 30.75475, 'driver'); // 700m
         $location2 = new TrackingLocation(2, 46.46266, 30.74391, 'driver'); // 4.4km
         $location3 = new TrackingLocation(3, 46.42804, 30.74694, 'driver'); // 450m
-        $documentManager->persist($location1);
-        $documentManager->persist($location2);
-        $documentManager->persist($location3);
-        $documentManager->flush();
+        $this->documentManager->persist($location1);
+        $this->documentManager->persist($location2);
+        $this->documentManager->persist($location3);
+        $this->documentManager->flush();
 
-        $repository = $documentManager
+        $repository = $this->documentManager
             ->getRepository(TrackingLocation::class);
 
         $drivers = $repository->findClosestDrivers(46.42738, 30.75128, 400);

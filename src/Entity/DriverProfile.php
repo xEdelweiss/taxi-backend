@@ -19,6 +19,14 @@ class DriverProfile
     #[ORM\OneToOne(mappedBy: 'driver', cascade: ['persist', 'remove'])]
     private ?TripOrderRequest $tripOrderRequest = null;
 
+    #[ORM\OneToOne(mappedBy: 'driverProfile', cascade: ['persist', 'remove'])]
+    private User $user;
+
+    public function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -39,5 +47,10 @@ class DriverProfile
     public function getTripOrderRequest(): ?TripOrderRequest
     {
         return $this->tripOrderRequest;
+    }
+
+    public function getUser(): User
+    {
+        return $this->user;
     }
 }

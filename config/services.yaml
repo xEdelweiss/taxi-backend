@@ -31,8 +31,16 @@ services:
         arguments:
             - '%env(STRIPE_SECRET_KEY)%'
 
+    App\Service\Matching\MatchingStrategyInterface: '@App\Service\Matching\SimpleClosestMatchingStrategy'
+
     App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\FakeGeocoder'
     App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\FakePaymentProvider'
+
+when@test:
+    services:
+        App\Service\NavigationService:
+            autowire: true
+            public: true
 
 when@prod: &when_prod
     services:
