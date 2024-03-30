@@ -109,6 +109,10 @@ class TripOrder
             throw new \InvalidArgumentException("Invalid TripOrder status change: expected [{$expectedNext->value}], got [{$next->value}]");
         }
 
+        if ($next === TripStatus::WaitingForPayment && !$this->getCost()) {
+            throw new \LogicException('Cannot set status to WaitingForPayment without cost estimation');
+        }
+
         if ($next === TripStatus::WaitingForDriver && !$this->getPaymentHoldId()) {
             throw new \LogicException('Cannot set status to WaitingForDriver without active payment hold');
         }

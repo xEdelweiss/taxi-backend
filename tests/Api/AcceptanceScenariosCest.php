@@ -3,6 +3,7 @@
 
 namespace App\Tests\Api;
 
+use App\Event\Payment\PaymentHeldForOrder;
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
 
@@ -100,11 +101,10 @@ class AcceptanceScenariosCest
                 'start' => $START_LOCATION,
                 'end' => $END_LOCATION,
                 'price' => [
-                    'amount' => 100,
+                    'amount' => 39540,
                     'currency' => 'USD',
                 ],
-                'driver_arrival_time' => 10,
-                'trip_time' => 20,
+                'trip_time' => 319,
             ],
         ]);
 
@@ -119,6 +119,8 @@ class AcceptanceScenariosCest
                 'captured' => false,
             ],
         ]);
+
+        $i->seeEvent(PaymentHeldForOrder::class);
 
         // User: Poll for status
         $i->sendGetAsJson('/api/trip/orders/1');

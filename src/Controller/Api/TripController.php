@@ -4,6 +4,8 @@ namespace App\Controller\Api;
 
 use App\Dto\MoneyDto;
 use App\Entity\TripOrder;
+use App\Service\CostService;
+use App\Service\NavigationService;
 use App\Service\Trip\Enum\TripStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,6 +19,8 @@ class TripController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly NavigationService $navigationService,
+        private readonly CostService $costService,
     ) {}
 
     #[Route('/orders', methods: ['GET'])]
@@ -58,9 +62,21 @@ class TripController extends AbstractController
     #[Route('/orders', methods: ['POST'])]
     public function createOrder(Request $request): JsonResponse
     {
+        $payload = $request->getPayload()->all();
+        $start = [
+            $payload['start']['latitude'],
+            $payload['start']['longitude'],
+        ];
+        $end = [
+            $payload['end']['latitude'],
+            $payload['end']['longitude'],
+        ];
+
+        $route = $this->navigationService->calculateRoute($start, $end);
+        $cost = new MoneyDto($this->costService->calculateCost($route), 'USD');
+
         $order = new TripOrder();
-        $order->setCost(new MoneyDto(100, 'USD'));
-        // @fixme: do not allow to set status without cost estimation
+        $order->setCost($cost);
         $order->setStatus(TripStatus::WaitingForPayment);
 
         $this->entityManager->persist($order);
@@ -70,14 +86,14 @@ class TripController extends AbstractController
             'data' => [
                 'id' => $order->getId(),
                 'status' => $order->getStatus(),
-                'start' => $request->getPayload()->all()['start'],
-                'end' => $request->getPayload()->all()['end'],
+                'start' => $payload['start'], // @fixme update from route
+                'end' => $payload['end'], // @fixme update from route
                 'price' => [
                     'amount' => $order->getCost()->amount,
                     'currency' => $order->getCost()->currency,
                 ],
                 'driver_arrival_time' => 10,
-                'trip_time' => 20,
+                'trip_time' => $route->duration,
             ],
         ], Response::HTTP_CREATED);
     }

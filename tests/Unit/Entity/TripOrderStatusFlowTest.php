@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Entity;
 
+use App\Dto\MoneyDto;
 use App\Entity\TripOrder;
 use App\Service\Trip\Enum\TripStatus;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,13 +23,23 @@ class TripOrderStatusFlowTest extends TestCase
     }
 
     #[Test]
-    public function canChangeFromInitialToWaitingForPayment(): void
+    public function canChangeFromInitialToWaitingForPaymentIfHasCost(): void
     {
         $order = $this->makeTripOrder(TripStatus::Initial);
 
+        $order->setCost(new MoneyDto(100, 'USD'));
         $order->setStatus(TripStatus::WaitingForPayment);
 
         $this->assertSame(TripStatus::WaitingForPayment, $order->getStatus());
+    }
+
+    #[Test]
+    public function cannotChangeFromInitialToWaitingForPaymentIfNoCost(): void
+    {
+        $order = $this->makeTripOrder(TripStatus::Initial);
+
+        $this->expectException(\LogicException::class);
+        $order->setStatus(TripStatus::WaitingForPayment);
     }
 
     #[Test]
@@ -166,6 +177,21 @@ class TripOrderStatusFlowTest extends TestCase
         $reflectionClass = new \ReflectionClass(TripOrder::class);
         $reflectionProperty = $reflectionClass->getProperty('status');
         $reflectionProperty->setValue($tripOrder, $status);
+
+        if (in_array($status, [
+            TripStatus::WaitingForPayment,
+            TripStatus::WaitingForDriver,
+            TripStatus::DriverOnWay,
+            TripStatus::DriverArrived,
+            TripStatus::InProgress,
+            TripStatus::Completed,
+        ], true)) {
+            $reflectionProperty = $reflectionClass->getProperty('cost');
+            $reflectionProperty->setValue($tripOrder, 100);
+
+            $reflectionProperty = $reflectionClass->getProperty('currency');
+            $reflectionProperty->setValue($tripOrder, 'USD');
+        }
 
         if (in_array($status, [
             TripStatus::WaitingForDriver,
