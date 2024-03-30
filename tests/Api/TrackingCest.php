@@ -25,8 +25,8 @@ class TrackingCest
 
         $i->seeInCollection(TrackingLocation::class, [
             'userId' => 1,
-            'coordinates.latitude' => 46.4273814334286,
-            'coordinates.longitude' => 30.751279752912698,
+            'coordinates.latitude' => 46.42738,
+            'coordinates.longitude' => 30.75128,
         ]);
     }
 
@@ -50,8 +50,8 @@ class TrackingCest
         $i->seeNumElementsInCollection(TrackingLocation::class, 1);
         $i->seeInCollection(TrackingLocation::class, [
             'userId' => 1,
-            'coordinates.latitude' => 46.423173199108106,
-            'coordinates.longitude' => 30.74705368639186,
+            'coordinates.latitude' => 46.42317,
+            'coordinates.longitude' => 30.74705,
         ]);
     }
 }

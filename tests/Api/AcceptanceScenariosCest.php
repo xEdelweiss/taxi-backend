@@ -98,8 +98,16 @@ class AcceptanceScenariosCest
             'data' => [
                 'id' => 1,
                 'status' => 'WAITING_FOR_PAYMENT',
-                'start' => $START_LOCATION,
-                'end' => $END_LOCATION,
+                'start' => [
+                    'latitude' => 46.42738,
+                    'longitude' => 30.75128,
+                    'address' => '7th st. Fontanskoyi dorohy',
+                ],
+                'end' => [
+                    'latitude' => 46.45154,
+                    'longitude' => 30.74398,
+                    'address' => 'Sehedska Street, 5',
+                ],
                 'price' => [
                     'amount' => 39540,
                     'currency' => 'USD',
@@ -139,8 +147,16 @@ class AcceptanceScenariosCest
                 [
                     'id' => 1,
                     'status' => 'WAITING_FOR_DRIVER',
-                    'start' => $START_LOCATION,
-                    'end' => $END_LOCATION,
+                    'start' => [
+                        'latitude' => 46.42738,
+                        'longitude' => 30.75128,
+                        'address' => '7th st. Fontanskoyi dorohy',
+                    ],
+                    'end' => [
+                        'latitude' => 46.45153,
+                        'longitude' => 30.74398,
+                        'address' => 'Sehedska Street, 5',
+                    ],
                 ],
             ],
         ]);

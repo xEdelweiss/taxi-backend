@@ -2,25 +2,28 @@
 
 namespace App\Entity\Embeddable;
 
+use App\Trait\CoordinateUtils;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Embeddable]
 class Location
 {
+    use CoordinateUtils;
+
     #[ORM\Column(type: 'string', length: 255)]
     private string $address;
 
-    #[ORM\Column(type: 'float')]
+    #[ORM\Column(type: "decimal", precision: 8, scale: 5)]
     private float $latitude;
 
-    #[ORM\Column(type: 'float')]
+    #[ORM\Column(type: "decimal", precision: 8, scale: 5)]
     private float $longitude;
 
     public function __construct(string $address, float $latitude, float $longitude)
     {
         $this->address = $address;
-        $this->latitude = $latitude;
-        $this->longitude = $longitude;
+        $this->setLatitude($latitude);
+        $this->setLongitude($longitude);
     }
 
     public static function empty(): static
@@ -34,11 +37,10 @@ class Location
             throw new \InvalidArgumentException('Location data is invalid');
         }
 
-        return new self(
-            $data['address'],
-            $data['latitude'],
-            $data['longitude']
-        );
+        return self::empty()
+            ->setAddress($data['address'])
+            ->setLatitude($data['latitude'])
+            ->setLongitude($data['longitude']);
     }
 
     public function isEmpty(): bool
@@ -59,5 +61,26 @@ class Location
     public function getLongitude(): float
     {
         return $this->longitude;
+    }
+
+    public function setAddress(string $address): static
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function setLatitude(float $latitude): static
+    {
+        $this->latitude = $this->truncateCoordinate($latitude);
+
+        return $this;
+    }
+
+    public function setLongitude(float $longitude): static
+    {
+        $this->longitude = $this->truncateCoordinate($longitude);
+
+        return $this;
     }
 }

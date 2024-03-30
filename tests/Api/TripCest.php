@@ -30,13 +30,13 @@ class TripCest
                 'id' => 1,
                 'status' => 'WAITING_FOR_PAYMENT',
                 'start' => [
-                    'latitude' => 46.4273814334286,
-                    'longitude' => 30.751279752912698,
+                    'latitude' => 46.42738,
+                    'longitude' => 30.75128,
                     'address' => '7th st. Fontanskoyi dorohy',
                 ],
                 'end' => [
-                    'latitude' => 46.423173199108106,
-                    'longitude' => 30.74705368639186,
+                    'latitude' => 46.42317,
+                    'longitude' => 30.74705,
                     'address' => 'Sehedska Street, 5',
                 ],
                 'price' => [

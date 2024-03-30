@@ -20,8 +20,8 @@ class TripController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly NavigationService $navigationService,
-        private readonly CostService $costService,
+        private readonly NavigationService      $navigationService,
+        private readonly CostService            $costService,
     ) {}
 
     #[Route('/orders', methods: ['GET'])]
@@ -30,22 +30,20 @@ class TripController extends AbstractController
         $orders = $this->entityManager->getRepository(TripOrder::class)->findAll();
 
         return $this->json([
-            'data' => [
-                array_map(static fn (TripOrder $order) => [
-                    'id' => $order->getId(),
-                    'status' => $order->getStatus(),
-                    'start' => [
-                        'latitude' => 46.4273814334286,
-                        'longitude' => 30.751279752912698,
-                        'address' => '7th st. Fontanskoyi dorohy',
-                    ],
-                    'end' => [
-                        'latitude' => 46.451538925795234,
-                        'longitude' => 30.743980453729417,
-                        'address' => 'Sehedska Street, 5',
-                    ],
-                ], $orders),
-            ],
+            'data' => array_map(static fn(TripOrder $order) => [
+                'id' => $order->getId(),
+                'status' => $order->getStatus(),
+                'start' => [
+                    'latitude' => 46.42738,
+                    'longitude' => 30.75128,
+                    'address' => '7th st. Fontanskoyi dorohy',
+                ],
+                'end' => [
+                    'latitude' => 46.45153,
+                    'longitude' => 30.74398,
+                    'address' => 'Sehedska Street, 5',
+                ],
+            ], $orders),
         ]);
     }
 
@@ -103,7 +101,6 @@ class TripController extends AbstractController
                     'amount' => $order->getCost()->getAmount(),
                     'currency' => $order->getCost()->getCurrency(),
                 ],
-                'driver_arrival_time' => 10,
                 'trip_time' => $route->duration,
             ],
         ], Response::HTTP_CREATED);
