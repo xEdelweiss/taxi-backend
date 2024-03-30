@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Embeddable\Location;
 use App\Entity\Embeddable\Money;
 use App\Repository\TripOrderRepository;
 use App\Service\Trip\Enum\TripStatus;
@@ -24,10 +25,18 @@ class TripOrder
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $paymentHoldId = null;
 
+    #[ORM\Embedded(class: Location::class)]
+    private Location $start;
+
+    #[ORM\Embedded(class: Location::class)]
+    private Location $end;
+
     public function __construct()
     {
         $this->status = TripStatus::Initial;
-        $this->cost = new Money(0, 'USD');
+        $this->cost = Money::empty();
+        $this->start = Location::empty();
+        $this->end = Location::empty();
     }
 
     public function getId(): ?int
@@ -59,6 +68,26 @@ class TripOrder
     public function getCost(): Money
     {
         return $this->cost;
+    }
+
+    public function getStart(): ?Location
+    {
+        return $this->start;
+    }
+
+    public function setStart(Location $start): void
+    {
+        $this->start = $start;
+    }
+
+    public function getEnd(): ?Location
+    {
+        return $this->end;
+    }
+
+    public function setEnd(Location $end): void
+    {
+        $this->end = $end;
     }
 
     public function getPaymentHoldId(): ?string
@@ -102,7 +131,14 @@ class TripOrder
             throw new \InvalidArgumentException("Invalid TripOrder status change: expected [{$expectedNext->value}], got [{$next->value}]");
         }
 
-        if ($next === TripStatus::WaitingForPayment && $this->getCost()->getAmount() === 0) {
+        if (
+            $next === TripStatus::WaitingForPayment
+            && (
+                $this->getCost()->isEmpty()
+                || $this->getStart()->isEmpty()
+                || $this->getEnd()->isEmpty()
+            )
+        ) {
             throw new \LogicException('Cannot set status to WaitingForPayment without cost estimation');
         }
 

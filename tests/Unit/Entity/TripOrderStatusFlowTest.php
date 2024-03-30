@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Entity;
 
+use App\Entity\Embeddable\Location;
 use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
 use App\Service\Trip\Enum\TripStatus;
@@ -23,11 +24,14 @@ class TripOrderStatusFlowTest extends TestCase
     }
 
     #[Test]
-    public function canChangeFromInitialToWaitingForPaymentIfHasCost(): void
+    public function canChangeFromInitialToWaitingForPaymentIfHasLocationsAndCost(): void
     {
         $order = $this->makeTripOrder(TripStatus::Initial);
 
         $order->setCost(new Money(100, 'USD'));
+        $order->setStart(new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698));
+        $order->setEnd(new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186));
+
         $order->setStatus(TripStatus::WaitingForPayment);
 
         $this->assertSame(TripStatus::WaitingForPayment, $order->getStatus());
@@ -37,6 +41,20 @@ class TripOrderStatusFlowTest extends TestCase
     public function cannotChangeFromInitialToWaitingForPaymentIfNoCost(): void
     {
         $order = $this->makeTripOrder(TripStatus::Initial);
+
+        $order->setStart(new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698));
+        $order->setEnd(new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186));
+
+        $this->expectException(\LogicException::class);
+        $order->setStatus(TripStatus::WaitingForPayment);
+    }
+
+    #[Test]
+    public function cannotChangeFromInitialToWaitingForPaymentIfNoRoute(): void
+    {
+        $order = $this->makeTripOrder(TripStatus::Initial);
+
+        $order->setCost(new Money(100, 'USD'));
 
         $this->expectException(\LogicException::class);
         $order->setStatus(TripStatus::WaitingForPayment);

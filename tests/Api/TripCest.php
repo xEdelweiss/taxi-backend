@@ -6,7 +6,7 @@ namespace App\Tests\Api;
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
 
-class OrderCest
+class TripCest
 {
     public function userCanCreateOrder(ApiTester $i): void
     {

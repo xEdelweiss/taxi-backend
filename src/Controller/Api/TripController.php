@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Embeddable\Location;
 use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
 use App\Service\CostService;
@@ -77,6 +78,8 @@ class TripController extends AbstractController
 
         $order = new TripOrder();
         $order->setCost($cost);
+        $order->setStart(Location::fromArray($payload['start']));
+        $order->setEnd(Location::fromArray($payload['end']));
         $order->setStatus(TripStatus::WaitingForPayment);
 
         $this->entityManager->persist($order);
@@ -86,8 +89,16 @@ class TripController extends AbstractController
             'data' => [
                 'id' => $order->getId(),
                 'status' => $order->getStatus(),
-                'start' => $payload['start'], // @fixme update from route
-                'end' => $payload['end'], // @fixme update from route
+                'start' => [ // @fixme update from route
+                    'latitude' => $order->getStart()->getLatitude(),
+                    'longitude' => $order->getStart()->getLongitude(),
+                    'address' => $order->getStart()->getAddress()
+                ],
+                'end' => [ // @fixme update from route
+                    'latitude' => $order->getEnd()->getLatitude(),
+                    'longitude' => $order->getEnd()->getLongitude(),
+                    'address' => $order->getEnd()->getAddress()
+                ],
                 'price' => [
                     'amount' => $order->getCost()->getAmount(),
                     'currency' => $order->getCost()->getCurrency(),

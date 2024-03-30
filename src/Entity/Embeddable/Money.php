@@ -4,7 +4,7 @@ namespace App\Entity\Embeddable;
 
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Embeddable()]
+#[ORM\Embeddable]
 class Money
 {
     #[ORM\Column(type: 'integer', nullable: true)]
@@ -17,6 +17,16 @@ class Money
     {
         $this->amount = $amount;
         $this->currency = $currency;
+    }
+
+    public static function empty(): static
+    {
+        return new self(0, 'USD');
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->amount === 0;
     }
 
     public function getAmount(): int
