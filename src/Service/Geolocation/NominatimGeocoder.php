@@ -4,6 +4,7 @@ namespace App\Service\Geolocation;
 
 use App\Dto\AddressDto;
 use App\Dto\CoordinatesDto;
+use App\Exception\Geolocation\AddressNotFound;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -28,6 +29,10 @@ class NominatimGeocoder implements GeocoderInterface
     public function addressToCoordinates(string $address): CoordinatesDto
     {
         $result = $this->makeSearchRequest($address);
+
+        if (empty($result)) {
+            throw new AddressNotFound($address);
+        }
 
         return new CoordinatesDto(
             $result[0]['lat'],

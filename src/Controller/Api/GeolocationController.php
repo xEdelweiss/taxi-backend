@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Exception\Geolocation\AddressNotFound;
 use App\Service\Geolocation\GeolocationServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,9 +39,15 @@ class GeolocationController extends AbstractController
     {
         $address = $request->getPayload()->get('address');
 
-        $coordsDto = $this->geolocationService->getGeocoder()
-            ->useLocale($request->getLocale())
-            ->addressToCoordinates($address);
+        try {
+            $coordsDto = $this->geolocationService->getGeocoder()
+                ->useLocale($request->getLocale())
+                ->addressToCoordinates($address);
+        } catch (AddressNotFound $e) {
+            return $this->json([
+                'data' => null,
+            ], Response::HTTP_NOT_FOUND);
+        }
 
         return $this->json([
             'data' => [

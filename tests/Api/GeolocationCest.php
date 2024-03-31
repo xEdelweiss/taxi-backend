@@ -46,4 +46,15 @@ class GeolocationCest
             ],
         ]);
     }
+
+    public function returnNotFoundIfAddressNotFound(ApiTester $i): void
+    {
+        $i->amLoggedInAsNewUser(p(1));
+
+        $i->sendPostAsJson('/api/geolocation/coordinates', [
+            'address' => 'fake address',
+        ]);
+
+        $i->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
 }
