@@ -3,11 +3,15 @@
     users: [],
     drivers: [],
     async init() {
+        $nextTick(() => this._initMap('admin-map'));
+
         await fetch('/debug/get-users')
             .then(response => response.json())
             .then(({data}) => {
                 this.users = data.users.map(item => ({...item, status: 'No order'}));
                 this.drivers = data.drivers.map(item => ({...item, status: 'No order'}));
+
+                this._redrawMarkers();
             });
 
         if (this.users.length === 0) {
@@ -20,6 +24,59 @@
 
         this.selectUser(this.users[0].phone);
         this.selectDriver(this.drivers[0].phone);
+    },
+    _initMap(id) {
+        this.map = TaxiMap.createMap(id, 14);
+
+        const coordsPopup = L.popup();
+        function onMapClick(e) {
+          coordsPopup
+            .setLatLng(e.latlng)
+            .setContent(e.latlng.toString())
+            .openOn(map);
+        }
+        map.on('click', onMapClick);
+    },
+    _redrawMarkers() {
+        this.users.forEach(user => {
+            this._moveMarker('user', user);
+        });
+        this.drivers.forEach(driver => {
+            this._moveMarker('driver', driver);
+        });
+    },
+    _moveMarker(type, user) {
+        if (!user.coordinates || !this.map) {
+            console.log('no coords or map');
+            return;
+        }
+
+        const latLng = [
+            user.coordinates.latitude,
+            user.coordinates.longitude,
+        ];
+
+        if (!user.marker) {
+            user.marker = L.marker(latLng, {
+                    icon: TaxiMap.getIcon(type),
+                })
+                .bindTooltip(TaxiUtils.formatPhone(user.phone), {
+                    permanent: false,
+                    direction: 'right',
+                    offset: [16, -20],
+                    className: 'font-semibold text-sm bg-white text-gray-800 p-2 rounded-md shadow-md',
+                })
+                .on('click', () => {
+                    if (type === 'user') {
+                        this.selectUser(user.phone);
+                    } else {
+                        this.selectDriver(user.phone);
+                    }
+                })
+                .addTo(this.map);
+        } else {
+            user.marker.setLatLng(new L.LatLng(...latLng));
+        }
     },
     addUser: async function() {
         return this._makeUser('user')
@@ -71,9 +128,6 @@
         .then(response => response.json())
         .then(({data}) => data);
     },
-    formatPhone: function(phone) {
-        return phone.replace(/(\d{3})(\d{2})(\d{2})(\d{2})(\d{3})/, '+$1 $2 $3 $4 $5');
-    },
     selectUser: function(phone) {
         $dispatch('user-selected', {phone});
         console.log('Event:', 'user-selected', {phone});
@@ -109,7 +163,7 @@
                         <template x-for="user in users">
                             <li @click="selectUser(user.phone)" class="bg-white rounded-md px-4 py-2 flex gap-4 justify-between hover:shadow-md cursor-pointer transition duration-300 group">
                                 <div>
-                                    <div x-text="formatPhone(user.phone)" class="text-gray-600 group-hover:text-black"></div>
+                                    <div x-text="TaxiUtils.formatPhone(user.phone)" class="text-gray-600 group-hover:text-black"></div>
                                     <div class="text-xs text-gray-500" x-text="user.status"></div>
                                 </div>
 
@@ -140,7 +194,7 @@
                         <template x-for="driver in drivers">
                             <li @click="selectDriver(driver.phone)" class="bg-white rounded-md px-4 py-2 flex gap-4 justify-between hover:shadow-md cursor-pointer transition duration-300 group">
                                 <div>
-                                    <div x-text="formatPhone(driver.phone)" class="text-gray-600 group-hover:text-black"></div>
+                                    <div x-text="TaxiUtils.formatPhone(driver.phone)" class="text-gray-600 group-hover:text-black"></div>
                                     <div class="text-xs text-gray-500" x-text="driver.status"></div>
                                 </div>
 
@@ -180,7 +234,7 @@
 </script>
 
 <script>
-  (function () {
+  /*(function () {
     const carsLayer = L.layerGroup();
 
     var map = L.map('admin-map', {
@@ -215,5 +269,5 @@
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
-  })();
+  })();*/
 </script>

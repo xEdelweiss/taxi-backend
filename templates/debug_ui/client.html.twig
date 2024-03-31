@@ -1,5 +1,4 @@
 <div x-data="{
-    DEFAULT_LAT_LNG: [46.446374, 30.757221],
     selectedPhone: null,
     token: null,
     map: null,
@@ -7,133 +6,66 @@
     userLatLng: [0, 0],
     address: '',
     init() {
-        $nextTick(() => {
-            this.map = L.map('client-map')
-                .setView(this.DEFAULT_LAT_LNG, 16);
-
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              maxZoom: 19,
-              attribution: `'&copy; <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>'`
-            }).addTo(this.map);
-
-            this.map.on('click', (e) => {
-                console.log(e.latlng.lat, e.latlng.lng, this);
-                this.userLatLng = [e.latlng.lat, e.latlng.lng];
-            });
-        });
-
-        $watch('userLatLng', (latLng) => {
-            if (!latLng || !this.map) {
-                console.log('no coords or map');
-                return;
-            }
-
-            if (!this.userMarker) {
-                this.userMarker = L.marker(latLng).addTo(this.map);
-            } else {
-                this.userMarker.setLatLng(new L.LatLng(...latLng));
-            }
-
-            this.map.flyTo(new L.LatLng(...latLng), 16, {
-                animate: true,
-                duration: 0.5,
-            });
-        });
-
-        $watch('userLatLng', async (latLng) => {
-            if (!this.token) {
-                console.log('no token');
-                return;
-            }
-
-            const {data} = await fetch('/api/geolocation/addresses', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.token}`,
-                },
-                body: JSON.stringify({
-                    latitude: latLng[0],
-                    longitude: latLng[1],
-                }),
-            }).then(response => response.json());
-
-            this.address = data.address;
-        });
-
-        $watch('userLatLng', async (latLng) => {
-            if (!this.token) {
-                console.log('no token');
-                return;
-            }
-
-            await fetch('/api/tracking/locations', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.token}`,
-                },
-                body: JSON.stringify({
-                    latitude: latLng[0],
-                    longitude: latLng[1],
-                }),
-            });
-        });
-
+        $nextTick(() => this._initMap('client-map'));
+        $watch('userLatLng', (latLng) => this._moveMarker(latLng));
+        $watch('userLatLng', (latLng) => this._fetchAddress(latLng));
+        $watch('userLatLng', (latLng) => this._saveLocation(latLng));
         $watch('selectedPhone', async (phone, oldPhone) => {
-            if (oldPhone === phone) {
-                return;
+            if (oldPhone !== phone) {
+                this.token = null;
             }
 
-            this.token = null;
-
-            if (!phone) {
-                return;
-            }
-
-            const response = await fetch('/debug/fake-login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({phone}),
-            });
-
-            const {data} = await response.json();
-            this.token = data.token;
-            this.userLatLng = data.coordinates ? [
-                data.coordinates.latitude,
-                data.coordinates.longitude,
-            ] : this.DEFAULT_LAT_LNG;
+            this._login(phone);
         });
     },
-    async findAddress() {
-        if (!this.token) {
-            console.log('no token');
+    _initMap(id) {
+        this.map = TaxiMap.createMap(id);
+
+        this.map.on('click', (e) => {
+            console.log(e.latlng.lat, e.latlng.lng, this);
+            this.userLatLng = [e.latlng.lat, e.latlng.lng];
+        });
+    },
+    _moveMarker(latLng) {
+        if (!latLng || !this.map) {
+            console.log('no coords or map');
             return;
         }
 
-        const {data} = await fetch('/api/geolocation/coordinates', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.token}`,
-            },
-            body: JSON.stringify({
-                address: this.address,
-            }),
-        }).then(response => response.json());
-
-        if (data) {
-            this.userLatLng = [data.latitude, data.longitude];
+        if (!this.userMarker) {
+            this.userMarker = L.marker(latLng, {icon: TaxiMap.getUserIcon(1.5)}).addTo(this.map);
+        } else {
+            this.userMarker.setLatLng(new L.LatLng(...latLng));
         }
+
+        TaxiMap.moveMap(this.map, latLng);
     },
-    formatPhone: function(phone) {
-        if (!phone) {
-            return '';
+    async _fetchAddress(latLng) {
+        try {
+            this.address = await TaxiApi.fetchAddressByCoords(latLng, this.token);
+        } catch(e) { }
+    },
+    _saveLocation(latLng) {
+        try {
+            TaxiApi.saveLocation(latLng, this.token);
+        } catch(e) { }
+    },
+    async _login(phone) {
+        if (this.token) {
+            return;
         }
 
-        return phone.replace(/(\d{3})(\d{2})(\d{2})(\d{2})(\d{3})/, '+$1 $2 $3 $4 $5');
+        try {
+            const {token, latLng} = await TaxiApi.login(phone);
+
+            this.token = token;
+            this.userLatLng = latLng;
+        } catch(e) { }
+    },
+    async findAddress() {
+        try {
+            this.userLatLng = await TaxiApi.fetchCoordsByAddress(this.address, this.token);
+        } catch(e) { }
     },
 }"
      @user-selected.window="selectedPhone = $event.detail.phone"
@@ -144,16 +76,11 @@
     <div class="h-full z-0" id="client-map"></div>
 
     <div x-show="token" :title="'lat:' + userLatLng[0] + ', lng: ' + userLatLng[1]" class="absolute top-4 right-4 px-4 py-2 z-10 bg-white rounded-lg flex gap-4">
-        <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 512 512"
-             class="w-12 h-12 fill-gray-800">
-            <path d="M458.667 341.333h-85.333c-5.888 0-10.667 4.779-10.667 10.667s4.779 10.667 10.667 10.667h85.333c5.888 0 10.667-4.779 10.667-10.667-.001-5.888-4.779-10.667-10.667-10.667zM309.333 234.667h64c5.888 0 10.667-4.779 10.667-10.667s-4.779-10.667-10.667-10.667h-64c-5.888 0-10.667 4.779-10.667 10.667s4.779 10.667 10.667 10.667zm106.667 0h42.667c5.888 0 10.667-4.779 10.667-10.667s-4.779-10.667-10.667-10.667H416c-5.888 0-10.667 4.779-10.667 10.667s4.779 10.667 10.667 10.667zm-106.667 64h149.333c5.888 0 10.667-4.779 10.667-10.667s-4.779-10.667-10.667-10.667H309.333c-5.888 0-10.667 4.779-10.667 10.667s4.779 10.667 10.667 10.667zm0 64h21.333c5.888 0 10.667-4.779 10.667-10.667s-4.779-10.667-10.667-10.667h-21.333c-5.888 0-10.667 4.779-10.667 10.667.001 5.888 4.779 10.667 10.667 10.667z"/>
-            <path d="M458.667 64H53.333C23.936 64 0 87.936 0 117.333v277.333C0 424.064 23.936 448 53.333 448h405.333C488.064 448 512 424.064 512 394.667V117.333C512 87.936 488.064 64 458.667 64zm32 330.667c0 17.643-14.357 32-32 32H53.333c-17.643 0-32-14.357-32-32V149.333h469.333v245.334zm0-266.667H21.333v-10.667c0-17.643 14.357-32 32-32h405.333c17.643 0 32 14.357 32 32V128z"/>
-            <path d="m53.333 405.333 213.333-.021c5.888 0 10.667-4.779 10.667-10.667 0-26.731-18.112-49.941-44.011-56.427l-28.608-7.168c19.499-4.395 29.803-10.368 30.315-10.688 2.965-1.749 4.757-4.928 5.056-8.363.299-3.413-1.195-6.891-3.819-9.131-.149-.128-14.549-12.971-14.549-56.597 0-44.011-11.392-66.325-33.856-66.325h-.384c-7.147-6.4-13.824-9.28-27.456-9.28-19.328 0-61.675 19.029-61.675 75.584 0 43.499-14.315 56.405-14.293 56.405-2.859 2.112-4.437 5.525-4.267 9.067a10.691 10.691 0 0 0 5.163 8.597c.512.299 10.709 6.336 30.315 10.752l-28.544 7.147c-25.941 6.485-44.053 29.696-44.053 56.448 0 2.837 1.109 5.568 3.115 7.552a10.737 10.737 0 0 0 7.551 3.115zm38.528-46.442 38.229-9.557c3.819-.939 6.827-3.925 7.765-7.744l3.968-15.829c.747-2.923.192-6.037-1.493-8.555a10.758 10.758 0 0 0-7.381-4.587c-11.072-1.536-19.691-3.84-25.813-5.909 6.08-10.923 12.523-29.739 12.523-60.459C119.659 201.429 153.365 192 160 192c9.493 0 10.56 1.067 15.616 6.144a10.744 10.744 0 0 0 7.552 3.115h4.629c6.229 0 12.523 13.909 12.523 44.992 0 30.677 6.443 49.493 12.501 60.416-6.144 2.069-14.784 4.395-25.813 5.931a10.67 10.67 0 0 0-7.36 4.608 10.63 10.63 0 0 0-1.493 8.555l3.968 15.851c.96 3.797 3.947 6.805 7.765 7.744l38.229 9.557a36.797 36.797 0 0 1 26.325 25.088l-188.885-.021a36.956 36.956 0 0 1 26.304-25.089z"/>
-        </svg>
+        {{ source('icons/user-icon.svg.twig') }}
 
         <div class="flex flex-col justify-center gap-1">
             <div class="text-gray-500 text-xs font-semibold">Passenger:</div>
-            <div class="text-gray-800 font-semibold text-sm" x-text="formatPhone(selectedPhone)"></div>
+            <div class="text-gray-800 font-semibold text-sm" x-text="TaxiUtils.formatPhone(selectedPhone)"></div>
         </div>
     </div>
 
@@ -167,18 +94,14 @@
             </div>
 
             <button @click="findAddress()" class="shrink-0 bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                    <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" />
-                </svg>
+                {{ source('icons/find.svg.twig') }}
             </button>
         </div>
 
         <button class="bg-orange-600 hover:bg-orange-800 text-white px-4 py-2 rounded-lg flex gap-2 items-center">
             <span>Drive</span>
 
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-            </svg>
+            {{ source('icons/start.svg.twig') }}
         </button>
     </div>
 </div>

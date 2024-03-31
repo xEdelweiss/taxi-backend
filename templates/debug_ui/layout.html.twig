@@ -48,4 +48,156 @@
         }
       }
     </script>
+
+    <script>
+        window.TaxiConsts = {
+          MAP_CENTER: [46.446374, 30.757221],
+          MAP_ZOOM: 16,
+          DEFAULT_USER_LAT_LNG: [46.446374, 30.757221],
+        }
+
+        window.TaxiMap = {
+          createMap: (containerId, zoom = TaxiConsts.MAP_ZOOM, latLng = TaxiConsts.MAP_CENTER) => {
+            this.map = L.map(containerId).setView(latLng, zoom);
+
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: `<a target='_blank' href='https://www.flaticon.com/authors/freepik'>Freepik</a> <span aria-hidden="true">|</span> &copy; <a target='_blank' href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>`
+            }).addTo(this.map);
+
+            return map;
+          },
+          moveMap: (map, latLng, zoom = 16) => {
+            map.flyTo(new L.LatLng(...latLng), zoom, {
+              animate: true,
+              duration: 0.5,
+            })
+          },
+          getIcon: (type, scale = 1.2) => {
+            return type === 'user'
+              ? TaxiMap.getUserIcon(scale)
+              : TaxiMap.getDriverIcon(scale);
+          },
+          getUserIcon: (scale = 1.2) => {
+            return L.icon({
+              iconUrl: "{{ asset('assets/user-pin.png') }}",
+              // shadowUrl: 'leaf-shadow.png',
+
+              iconSize:     [32 * scale, 32 * scale], // size of the icon
+              // shadowSize:   [50, 64], // size of the shadow
+              iconAnchor:   [16 * scale, 34 * scale], // point of the icon which will correspond to marker's location
+              // shadowAnchor: [4, 62],  // the same for the shadow
+              popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
+            });
+          },
+          getDriverIcon: (scale = 1.2) => {
+            return L.icon({
+              iconUrl: "{{ asset('assets/driver-pin.png') }}",
+              // shadowUrl: 'leaf-shadow.png',
+
+              iconSize:     [32 * scale, 32 * scale], // size of the icon
+              // shadowSize:   [50, 64], // size of the shadow
+              iconAnchor:   [16 * scale, 34 * scale], // point of the icon which will correspond to marker's location
+              // shadowAnchor: [4, 62],  // the same for the shadow
+              popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
+            });
+          },
+        }
+
+        window.TaxiUtils = {
+          formatPhone: (phone) => {
+            if (!phone) {
+              return '';
+            }
+
+            return phone.replace(/(\d{3})(\d{2})(\d{2})(\d{2})(\d{3})/, '+$1 $2 $3 $4 $5');
+          },
+        }
+
+        window.TaxiApi = {
+          login: async (phone) => {
+            if (!phone) {
+              throw new Error('No phone provided');
+            }
+
+            const response = await fetch('/debug/fake-login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({phone}),
+            });
+
+            const {data} = await response.json();
+
+            return {
+                token: data.token,
+                latLng: data.coordinates
+                  ? [data.coordinates.latitude, data.coordinates.longitude]
+                  : TaxiConsts.DEFAULT_USER_LAT_LNG,
+            }
+          },
+
+          fetchCoordsByAddress: async (address, token) => {
+            if (!token) {
+              throw new Error('No token provided');
+            }
+
+            const {data} = await fetch('/api/geolocation/coordinates', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                address,
+              }),
+            }).then(response => response.json());
+
+            if (!data) {
+              throw new Error('Address not found');
+            }
+
+            return [data.latitude, data.longitude];
+          },
+
+          fetchAddressByCoords: async (latLng, token) => {
+            if (!token) {
+              throw new Error('No token provided');
+            }
+
+            const {data} = await fetch('/api/geolocation/addresses', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                latitude: latLng[0],
+                longitude: latLng[1],
+              }),
+            }).then(response => response.json());
+
+            return data.address;
+          },
+
+          saveLocation: (latLng, token) => {
+            if (!token) {
+              throw new Error('No token provided');
+            }
+
+            return fetch('/api/tracking/locations', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                latitude: latLng[0],
+                longitude: latLng[1],
+              }),
+            });
+          },
+        }
+    </script>
 {% endblock %}

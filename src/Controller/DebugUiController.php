@@ -63,28 +63,54 @@ class DebugUiController extends AbstractController
 
         // todo do not remove user with active order
 
-        if ($user) {
-            $this->entityManager->remove($user);
-            $this->entityManager->flush();
+        if (!$user) {
+            return $this->json([
+                'error' => 'User not found',
+            ], Response::HTTP_NOT_FOUND);
         }
+
+        $location = $this->documentManager
+            ->getRepository(TrackingLocation::class)
+            ->findByUser($user);
+
+        if ($location) {
+            $this->documentManager->remove($location);
+            $this->documentManager->flush();
+        }
+
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
 
         return $this->json([
             'data' => [
                 'phone' => $phone,
             ],
-        ], $user ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
+        ], Response::HTTP_OK);
     }
 
     #[Route('/debug/get-users')]
     public function getUsers(): Response
     {
-        $drivers = $this->entityManager->getRepository(User::class)->findAllWithDriverProfile();
-        $users = $this->entityManager->getRepository(User::class)->findAllWithoutDriverProfile();
+        $drivers = $this->entityManager->getRepository(User::class)
+            ->findAllWithDriverProfile();
+        $users = $this->entityManager->getRepository(User::class)
+            ->findAllWithoutDriverProfile();
+
+        // list of drivers with coordinates by order
+        $locations = $this->documentManager
+            ->getRepository(TrackingLocation::class)
+            ->findAll();
 
         return $this->json([
             'data' => [
-                'drivers' => array_map(fn(User $user) => ['phone' => $user->getPhone()], $drivers),
-                'users' => array_map(fn(User $user) => ['phone' => $user->getPhone()], $users),
+                'drivers' => array_map(fn(User $user) => [
+                    'phone' => $user->getPhone(),
+                    'coordinates' => $this->findCoordinates($locations, $user),
+                ], $drivers),
+                'users' => array_map(fn(User $user) => [
+                    'phone' => $user->getPhone(),
+                    'coordinates' => $this->findCoordinates($locations, $user),
+                ], $users),
             ],
         ]);
     }
@@ -114,5 +140,20 @@ class DebugUiController extends AbstractController
                 ] : null,
             ],
         ]);
+    }
+
+    /** @param TrackingLocation[] $locations */
+    private function findCoordinates(array $locations, User $user): ?array
+    {
+        foreach ($locations as $location) {
+            if ($location->getUserId() === $user->getId()) {
+                return [
+                    'latitude' => $location->getCoordinates()->getLatitude(),
+                    'longitude' => $location->getCoordinates()->getLongitude(),
+                ];
+            }
+        }
+
+        return null;
     }
 }
