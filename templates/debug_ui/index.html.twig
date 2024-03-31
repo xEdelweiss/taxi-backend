@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Taxi Debug UI{% endblock %}
+
+{% block body %}
+    <div x-data="{showControls: true}" class="min-h-screen">
+
+        <div class="flex min-h-screen">
+            <div class="w-1/2 md:w-1/3 flex flex-col">
+                <div class="flex-1 bg-red-500">Client</div>
+                <div class="flex-1 bg-orange-500">Driver</div>
+            </div>
+            <div class="relative w-1/2 md:w-2/3 bg-green-500">
+                Admin
+
+                <div class="absolute bottom-0 right-0 bg-blue-300 w-1/2 max-h-1/2">
+                    <div @click="showControls = !showControls"
+                        class="text-center opacity-25 hover:opacity-100 cursor-pointer">[open/close]</div>
+                    <div class="p-4 bg-blue-400" :class="{'hidden': !showControls}">
+                        Controls
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+          }
+        }
+      }
+    </script>
+{% endblock %}
+
+{% block stylesheets %}
+    <style>
+    </style>
+{% endblock %}
