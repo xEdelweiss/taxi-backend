@@ -10,7 +10,7 @@ All features are covered by tests using Codeception and PHPUnit.
 
 ## Todo
 
-- [ ] Debug UI
+- [x] Debug UI (moved to [separate repository](https://github.com/xEdelweiss/taxi-frontend))
 - [ ] Simulate driver/user actions
 - [x] Registration and authentication
 - [ ] Driver profile activation
@@ -58,7 +58,7 @@ symfony serve
 
 ### Deployment
 
-* Compile assets: `php bin/console asset-map:compile`
+* TBD
 
 ## Notes
 

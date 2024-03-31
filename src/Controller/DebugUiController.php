@@ -21,12 +21,6 @@ class DebugUiController extends AbstractController
         private readonly DocumentManager $documentManager,
     ) {}
 
-    #[Route('/')]
-    public function index(): Response
-    {
-        return $this->render('debug_ui/index.html.twig');
-    }
-
     #[Route('/debug/users', methods: ['POST'])]
     public function addUser(Request $request, UserPasswordHasherInterface $passwordHasher): Response
     {
