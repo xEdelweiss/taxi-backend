@@ -4,9 +4,9 @@ namespace App\Service\Geolocation;
 
 use App\Dto\AddressDto;
 use App\Dto\CoordinatesDto;
+use App\Service\Geolocation\AddressFormatter\NominatimAddressFormatter;
 use App\Exception\Geolocation\AddressNotFound;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[When(env: 'prod')]
@@ -14,7 +14,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class NominatimGeocoder implements GeocoderInterface
 {
     public function __construct(
-        private HttpClientInterface $client,
+        private readonly HttpClientInterface $client,
+        private readonly NominatimAddressFormatter $addressFormatter,
         #[Autowire('%kernel.default_locale%')]
         private $locale,
     ) {}
@@ -44,8 +45,7 @@ class NominatimGeocoder implements GeocoderInterface
     {
         $result = $this->makeReverseRequest($latitude, $longitude);
 
-        $address = $result['address']['railway']
-            ?? $result['address']['road'] . ', ' . $result['address']['house_number'];
+        $address = $this->addressFormatter->format($result);
 
         return new AddressDto($address);
     }
