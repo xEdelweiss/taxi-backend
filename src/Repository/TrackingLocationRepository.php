@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Document\TrackingLocation;
+use App\Entity\User;
 use Doctrine\ODM\MongoDB\Repository\DocumentRepository;
 
 class TrackingLocationRepository extends DocumentRepository
@@ -26,5 +27,10 @@ class TrackingLocationRepository extends DocumentRepository
                 ],
             ],
         ], limit: $limit);
+    }
+
+    public function findByUser(User $user): ?TrackingLocation
+    {
+        return $this->findOneBy(['userId' => $user->getId()]);
     }
 }

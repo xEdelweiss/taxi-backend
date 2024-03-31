@@ -38,6 +38,25 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    /** @return User[] */
+    public function findAllWithDriverProfile(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->join('u.driverProfile', 'dp')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return User[] */
+    public function findAllWithoutDriverProfile(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->leftJoin('u.driverProfile', 'dp')
+            ->where('dp.id IS NULL')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return User[] Returns an array of User objects
     //     */

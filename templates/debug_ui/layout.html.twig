@@ -4,22 +4,22 @@
 
 {% block body %}
     <div class="min-h-screen">
-        <div class="flex min-h-screen">
-            <div class="w-1/2 md:w-1/3 flex flex-col">
-                <div class="flex-1 border-gray-300 border-b">
+        <div class="grid grid-cols-2 md:grid-cols-3 min-h-screen">
+            <div class="col-span-1 grid grid-rows-2 md:col-span-1">
+                <div class="border-gray-500 border-b-2">
                     {% block client %}
                         Client
                     {% endblock %}
                 </div>
 
-                <div class="flex-1">
+                <div>
                     {% block driver %}
                         Driver
                     {% endblock %}
                 </div>
             </div>
 
-            <div class="relative w-1/2 md:w-2/3 border-gray-300 border-l">
+            <div class="relative col-span-1 md:col-span-2 border-gray-500 border-l-2">
                 {% block admin %}
                     Admin
                 {% endblock %}
@@ -28,9 +28,18 @@
     </div>
 {% endblock %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+{% endblock %}
+
 {% block javascripts %}
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
     <script>
       tailwind.config = {
         theme: {
@@ -39,9 +48,4 @@
         }
       }
     </script>
-{% endblock %}
-
-{% block stylesheets %}
-    <style>
-    </style>
 {% endblock %}
