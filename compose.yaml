@@ -40,7 +40,7 @@ services:
     volumes: # Mount relative directories. ONLY for local container runtime. To switch to docker managed volumes see 'Docker Volumes configuration' section below.
       - ./var/ors-docker:/home/ors  # Mount the ORS application directory (for logs, graphs, elevation_cache, etc.) into its own directory
     environment:
-      REBUILD_GRAPHS: True  # Set to True to rebuild graphs on container start.
+      REBUILD_GRAPHS: False  # Set to True to rebuild graphs on container start.
       CONTAINER_LOG_LEVEL: INFO  # Log level for the container. Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
       XMS: 1g  # start RAM assigned to java
       XMX: 2g  # max RAM assigned to java. Rule of Thumb: <PBF-size> * <profiles> * 2
