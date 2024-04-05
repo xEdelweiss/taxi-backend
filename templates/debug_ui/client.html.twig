@@ -1,73 +1,4 @@
-<div x-data="{
-    selectedPhone: null,
-    token: null,
-    map: null,
-    userMarker: null,
-    userLatLng: [0, 0],
-    address: '',
-    init() {
-        $nextTick(() => this._initMap('client-map'));
-        $watch('userLatLng', (latLng) => this._moveMarker(latLng));
-        $watch('userLatLng', (latLng) => this._fetchAddress(latLng));
-        $watch('userLatLng', (latLng) => this._saveLocation(latLng));
-        $watch('selectedPhone', async (phone, oldPhone) => {
-            if (oldPhone !== phone) {
-                this.token = null;
-            }
-
-            this._login(phone);
-        });
-    },
-    _initMap(id) {
-        this.map = TaxiMap.createMap(id);
-
-        this.map.on('click', (e) => {
-            console.log(e.latlng.lat, e.latlng.lng, this);
-            this.userLatLng = [e.latlng.lat, e.latlng.lng];
-        });
-    },
-    _moveMarker(latLng) {
-        if (!latLng || !this.map) {
-            console.log('no coords or map');
-            return;
-        }
-
-        if (!this.userMarker) {
-            this.userMarker = L.marker(latLng, {icon: TaxiMap.getUserIcon(1.5)}).addTo(this.map);
-        } else {
-            this.userMarker.setLatLng(new L.LatLng(...latLng));
-        }
-
-        TaxiMap.moveMap(this.map, latLng);
-    },
-    async _fetchAddress(latLng) {
-        try {
-            this.address = await TaxiApi.fetchAddressByCoords(latLng, this.token);
-        } catch(e) { }
-    },
-    _saveLocation(latLng) {
-        try {
-            TaxiApi.saveLocation(latLng, this.token);
-        } catch(e) { }
-    },
-    async _login(phone) {
-        if (this.token) {
-            return;
-        }
-
-        try {
-            const {token, latLng} = await TaxiApi.login(phone);
-
-            this.token = token;
-            this.userLatLng = latLng;
-        } catch(e) { }
-    },
-    async findAddress() {
-        try {
-            this.userLatLng = await TaxiApi.fetchCoordsByAddress(this.address, this.token);
-        } catch(e) { }
-    },
-}"
+<div x-data="userClient"
      @user-selected.window="selectedPhone = $event.detail.phone"
      @user-removed.window="selectedPhone = null"
      class="relative h-full transition duration-300 ease-in-out"
@@ -80,7 +11,7 @@
 
         <div class="flex flex-col justify-center gap-1">
             <div class="text-gray-500 text-xs font-semibold">Passenger:</div>
-            <div class="text-gray-800 font-semibold text-sm" x-text="TaxiUtils.formatPhone(selectedPhone)"></div>
+            <div class="text-gray-800 font-semibold text-sm " x-text="TaxiUtils.formatPhone(selectedPhone)"></div>
         </div>
     </div>
 
