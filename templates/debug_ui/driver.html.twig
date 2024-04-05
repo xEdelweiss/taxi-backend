@@ -1,6 +1,6 @@
 <div x-data="driverClient"
      @driver-selected.window="selectedPhone = $event.detail.phone"
-     @driver-removed.window="selectedPhone = null"
+     @driver-removed.window="if ($event.detail.phone === selectedPhone) selectedPhone = null"
      class="relative h-full transition duration-300 ease-in-out"
      :class="{'opacity-25': token === null}"
 >

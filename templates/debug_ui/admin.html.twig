@@ -1,4 +1,6 @@
 <div x-data="adminClient"
+     @user-moved.window="refreshUsers(true);"
+     @driver-moved.window="refreshUsers(true);"
      class="h-full">
     <div id="admin-map" class="h-full z-0">
         !ADMIN
@@ -9,8 +11,10 @@
              class="top-0 right-0 text-right opacity-50 hover:opacity-100 cursor-pointer bg-gray-100 p-4 bg-transparent"
              :class="{'absolute': showControls}"
         >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
             </svg>
 
         </div>
@@ -23,13 +27,18 @@
 
                     <ul class="my-0 flex-1 flex flex-col gap-y-2">
                         <template x-for="user in users">
-                            <li @click="selectUser(user.phone)" class="bg-white rounded-md px-4 py-2 flex gap-4 justify-between hover:shadow-md cursor-pointer transition duration-300 group">
+                            <li @click="selectUser(user.phone)"
+                                class="bg-white rounded-md px-4 py-2 flex gap-4 justify-between hover:shadow-md cursor-pointer transition duration-300 group">
                                 <div>
-                                    <div x-text="TaxiUtils.formatPhone(user.phone)" class="text-gray-600 group-hover:text-black"></div>
+                                    <div x-text="TaxiUtils.formatPhone(user.phone)"
+                                         class="text-gray-600 group-hover:text-black"></div>
                                     <div class="text-xs text-gray-500" x-text="user.status"></div>
                                 </div>
 
-                                <button @click="removeUser(user.phone)" class="border border-red-500/50 hover:border-red-500 hover:bg-red-500 hover:text-white text-red-500 font-semibold py-2 px-4 rounded text-xs">X</button>
+                                <button @click.stop="removeUser(user.phone)"
+                                        class="border border-red-500/50 hover:border-red-500 hover:bg-red-500 hover:text-white text-red-500 font-semibold py-2 px-4 rounded text-xs">
+                                    X
+                                </button>
                             </li>
                         </template>
 
@@ -44,7 +53,9 @@
                     </ul>
 
                     <div class="flex flex-row gap-2 justify-start">
-                        <button @click="addUser()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs">Add</button>
+                        <button @click="addUser()"
+                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs">Add
+                        </button>
                     </div>
                 </section>
 
@@ -54,13 +65,18 @@
 
                     <ul class="my-0 flex-1 flex flex-col gap-y-2">
                         <template x-for="driver in drivers">
-                            <li @click="selectDriver(driver.phone)" class="bg-white rounded-md px-4 py-2 flex gap-4 justify-between hover:shadow-md cursor-pointer transition duration-300 group">
+                            <li @click="selectDriver(driver.phone)"
+                                class="bg-white rounded-md px-4 py-2 flex gap-4 justify-between hover:shadow-md cursor-pointer transition duration-300 group">
                                 <div>
-                                    <div x-text="TaxiUtils.formatPhone(driver.phone)" class="text-gray-600 group-hover:text-black"></div>
+                                    <div x-text="TaxiUtils.formatPhone(driver.phone)"
+                                         class="text-gray-600 group-hover:text-black"></div>
                                     <div class="text-xs text-gray-500" x-text="driver.status"></div>
                                 </div>
 
-                                <button @click="removeDriver(driver.phone)" class="border border-red-500/50 hover:border-red-500 hover:bg-red-500 hover:text-white text-red-500 font-semibold py-2 px-4 rounded text-xs">X</button>
+                                <button @click.stop="removeDriver(driver.phone)"
+                                        class="border border-red-500/50 hover:border-red-500 hover:bg-red-500 hover:text-white text-red-500 font-semibold py-2 px-4 rounded text-xs">
+                                    X
+                                </button>
                             </li>
                         </template>
 
@@ -75,17 +91,22 @@
                     </ul>
 
                     <div class="flex flex-row gap-2 justify-start">
-                        <button @click="addDriver()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs">Add</button>
+                        <button @click="addDriver()"
+                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs">Add
+                        </button>
                     </div>
                 </section>
             </div>
 
-            <hr class="my-4" />
+            <hr class="my-4"/>
 
             {# notes #}
             <ul class="list-disc ml-6 list-outside text-sm text-gray-800 max-w-[425px]">
-                <li>To <span class="font-semibold">login</span> as passenger or driver, click on the corresponding phone number.</li>
-                <li>Passenger and Driver sections work with their <span class="font-semibold">individual API keys</span>.</li>
+                <li>To <span class="font-semibold">login</span> as passenger or driver, click on the corresponding phone
+                    number.
+                </li>
+                <li>Passenger and Driver sections work with their <span class="font-semibold">individual API keys</span>.
+                </li>
             </ul>
         </div>
     </div>

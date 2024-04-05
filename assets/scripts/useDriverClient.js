@@ -26,7 +26,6 @@ export default function useDriverClient() {
       this.map = TaxiMap.createMap(id);
 
       this.map.on('click', (e) => {
-        console.log(e.latlng.lat, e.latlng.lng, this);
         this.userLatLng = [e.latlng.lat, e.latlng.lng];
       });
     },
@@ -44,14 +43,17 @@ export default function useDriverClient() {
 
       TaxiMap.moveMap(this.map, latLng);
     },
-    _saveLocation(latLng) {
+    async _saveLocation(latLng) {
       try {
-        TaxiApi.saveLocation(latLng, this.token);
+        await TaxiApi.saveLocation(latLng, this.token);
+
+        this.$dispatch('driver-moved', {phone: this.selectedPhone});
       } catch (e) {
+        console.error(e);
       }
     },
     async _login(phone) {
-      if (this.token) {
+      if (this.token || !phone) {
         return;
       }
 
@@ -61,6 +63,7 @@ export default function useDriverClient() {
         this.token = token;
         this.userLatLng = latLng;
       } catch (e) {
+        console.error(e);
       }
     },
   }));

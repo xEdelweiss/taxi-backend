@@ -28,7 +28,6 @@ export default function useUserClient() {
       this.map = TaxiMap.createMap(id);
 
       this.map.on('click', (e) => {
-        console.log(e.latlng.lat, e.latlng.lng, this);
         this.userLatLng = [e.latlng.lat, e.latlng.lng];
       });
     },
@@ -50,31 +49,33 @@ export default function useUserClient() {
       try {
         this.address = await TaxiApi.fetchAddressByCoords(latLng, this.token);
       } catch (e) {
+        console.error(e);
       }
     },
-    _saveLocation(latLng) {
+    async _saveLocation(latLng) {
       try {
-        TaxiApi.saveLocation(latLng, this.token);
+        await TaxiApi.saveLocation(latLng, this.token);
+
+        this.$dispatch('user-moved', {phone: this.selectedPhone});
       } catch (e) {
+        console.error(e);
       }
     },
     async _login(phone) {
-      if (this.token) {
+      if (this.token || !phone) {
         return;
       }
 
-      try {
-        const {token, latLng} = await TaxiApi.login(phone);
+      const {token, latLng} = await TaxiApi.login(phone);
 
-        this.token = token;
-        this.userLatLng = latLng;
-      } catch (e) {
-      }
+      this.token = token;
+      this.userLatLng = latLng;
     },
     async findAddress() {
       try {
         this.userLatLng = await TaxiApi.fetchCoordsByAddress(this.address, this.token);
       } catch (e) {
+        console.error(e);
       }
     },
   }));

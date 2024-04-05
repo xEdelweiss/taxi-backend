@@ -4,20 +4,23 @@ class TaxiApi {
       throw new Error('No phone provided');
     }
 
-    const response = await fetch('/debug/fake-login', {
+    const {token} = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({phone}),
-    });
+      body: JSON.stringify({
+        phone,
+        password: '!password!',
+      }),
+    }).then(response => response.json());
 
-    const {data} = await response.json();
+    const userLocation = await this._fetchLocation(phone);
 
     return {
-      token: data.token,
-      latLng: data.coordinates
-        ? [data.coordinates.latitude, data.coordinates.longitude]
+      token,
+      latLng: userLocation?.coordinates
+        ? [userLocation.coordinates.latitude, userLocation.coordinates.longitude]
         : TaxiConsts.DEFAULT_USER_LAT_LNG,
     }
   }
@@ -81,6 +84,17 @@ class TaxiApi {
         longitude: latLng[1],
       }),
     });
+  }
+
+  async _fetchLocation(phone) {
+    const {data: {locations}}  = await fetch(`/debug/last-location?phones[]=${phone}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => response.json());
+
+    return locations.find(location => location.phone === phone);
   }
 }
 

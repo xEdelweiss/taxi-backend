@@ -1,6 +1,6 @@
 <div x-data="userClient"
      @user-selected.window="selectedPhone = $event.detail.phone"
-     @user-removed.window="selectedPhone = null"
+     @user-removed.window="if ($event.detail.phone === selectedPhone) selectedPhone = null"
      class="relative h-full transition duration-300 ease-in-out"
      :class="{'opacity-25': !token && !selectedPhone, 'opacity-50': !token && !!selectedPhone}"
 >

@@ -6,21 +6,27 @@ import TaxiUtils from './TaxiUtils.js';
 export default function useAdminClient() {
   Alpine.data('adminClient', () => ({
     showControls: true,
-    users: [],
-    drivers: [],
+    everybody: [],
+    markers: {},
+    coordinates: {},
+    interval: null,
+
+    get users() {
+      return this.everybody.filter(user => user.type === 'user');
+    },
+
+    get drivers() {
+      return this.everybody.filter(user => user.type === 'driver');
+    },
+
     async init() {
       this.$nextTick(() => this._initMap('admin-map'));
+      this.$watch('coordinates', () => this._redrawMarkers());
 
-      await fetch('/debug/get-users')
-        .then(response => response.json())
-        .then(({data}) => {
-          this.users = data.users.map(item => ({...item, status: 'No order'}));
-          this.drivers = data.drivers.map(item => ({...item, status: 'No order'}));
+      await this.refreshUsers();
+      this._redrawMarkers();
 
-          this._redrawMarkers();
-        });
-
-      if (this.users.length === 0) {
+      if (this.everybody.length === 0) {
         await this.addUser();
       }
 
@@ -30,7 +36,16 @@ export default function useAdminClient() {
 
       this.selectUser(this.users[0].phone);
       this.selectDriver(this.drivers[0].phone);
+
+      // this.interval = setInterval(async () => {
+      //   await this.refreshUsers(true);
+      //   this._redrawMarkers();
+      // }, 1000);
     },
+    // destroy() {
+    //   console.log('destroy');
+    //   clearInterval(this.interval);
+    // },
     _initMap(id) {
       this.map = TaxiMap.createMap(id, 14);
 
@@ -43,28 +58,37 @@ export default function useAdminClient() {
       }
       this.map.on('click', onMapClick);
     },
-    _redrawMarkers() {
-      this.users.forEach(user => {
-        this._moveMarker('user', user);
-      });
-      this.drivers.forEach(driver => {
-        this._moveMarker('driver', driver);
-      });
+    refreshUsers(onlyLocations = false) {
+      return fetch('/debug/users')
+        .then(response => response.json())
+        .then(({data}) => {
+          this.coordinates = data.reduce((acc, user) => {
+            acc[user.phone] = user.coordinates;
+            return acc;
+          }, {});
+
+          if (!onlyLocations) {
+            this.everybody = data;
+          }
+        });
     },
-    _moveMarker(type, user) {
-      if (!user.coordinates || !this.map) {
+    _redrawMarkers() {
+      this.everybody.forEach(user => this._moveMarker(user));
+    },
+    _moveMarker(user) {
+      if (!this.coordinates[user.phone] || !this.map) {
         console.log('no coords or map');
         return;
       }
 
       const latLng = [
-        user.coordinates.latitude,
-        user.coordinates.longitude,
+        this.coordinates[user.phone].latitude,
+        this.coordinates[user.phone].longitude,
       ];
 
-      if (!user.marker) {
-        user.marker = L.marker(latLng, {
-            icon: TaxiMap.getIcon(type),
+      if (!this.markers[user.phone]) {
+        this.markers[user.phone] = L.marker(latLng, {
+            icon: TaxiMap.getIcon(user.type),
           })
           .bindTooltip(TaxiUtils.formatPhone(user.phone), {
             permanent: false,
@@ -73,7 +97,7 @@ export default function useAdminClient() {
             className: 'font-semibold text-sm bg-white text-gray-800 p-2 rounded-md shadow-md',
           })
           .on('click', () => {
-            if (type === 'user') {
+            if (user.type === 'user') {
               this.selectUser(user.phone);
             } else {
               this.selectDriver(user.phone);
@@ -81,23 +105,23 @@ export default function useAdminClient() {
           })
           .addTo(this.map);
       } else {
-        user.marker.setLatLng(new L.LatLng(...latLng));
+        this.markers[user.phone].setLatLng(new L.LatLng(...latLng));
       }
     },
     addUser: async function() {
       return this._makeUser('user')
         .then(data => {
-          this.users.push({phone: data.phone, status: 'No order'});
+          this.everybody.push(data);
         });
     },
     addDriver: async function() {
       return this._makeUser('driver')
         .then(data => {
-          this.drivers.push({phone: data.phone, status: 'No order'});
+          this.drivers.push(data);
         });
     },
     _makeUser: function(type) {
-      return fetch('/debug/add-user', {
+      return fetch('/debug/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,7 +134,7 @@ export default function useAdminClient() {
     removeUser: function(phone) {
       this._deleteUser(phone)
         .then(() => {
-          this.users = this.users.filter(user => user.phone !== phone);
+          this.everybody = this.everybody.filter(user => user.phone !== phone);
           this.$dispatch('user-removed', {phone});
           console.log('Event:', 'user-removed', {phone});
         });
@@ -124,8 +148,8 @@ export default function useAdminClient() {
         });
     },
     _deleteUser: function(phone) {
-      return fetch('/debug/remove-user', {
-        method: 'POST',
+      return fetch('/debug/users', {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
