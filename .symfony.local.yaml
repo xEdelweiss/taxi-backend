@@ -1,0 +1,4 @@
+workers:
+    docker_compose: ~
+    tailwind:
+        cmd: [ 'symfony', 'console', 'tailwind:build', '--watch' ]
