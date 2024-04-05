@@ -3,6 +3,7 @@ import './styles/app.css';
 
 import Alpine from 'alpinejs';
 import L from 'leaflet';
+import 'leaflet.marker.slideto';
 import useUserClient from './scripts/useUserClient.js';
 import useDriverClient from './scripts/useDriverClient.js';
 import useAdminClient from './scripts/useAdminClient.js';

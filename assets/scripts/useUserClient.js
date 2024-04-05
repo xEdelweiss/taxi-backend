@@ -38,12 +38,12 @@ export default function useUserClient() {
       }
 
       if (!this.userMarker) {
-        this.userMarker = L.marker(latLng, {icon: TaxiMap.getUserIcon(1.5)}).addTo(this.map);
+        this.userMarker = L.marker(latLng, {icon: TaxiMap.getUserIcon(1.5)}).addTo(Alpine.raw(this.map));
       } else {
         this.userMarker.setLatLng(new L.LatLng(...latLng));
       }
 
-      TaxiMap.moveMap(this.map, latLng);
+      TaxiMap.moveMap(Alpine.raw(this.map), latLng);
     },
     async _fetchAddress(latLng) {
       try {

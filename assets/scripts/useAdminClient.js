@@ -50,11 +50,11 @@ export default function useAdminClient() {
       this.map = TaxiMap.createMap(id, 14);
 
       const coordsPopup = L.popup();
-      function onMapClick(e) {
+      const onMapClick= (e) => {
         coordsPopup
           .setLatLng(e.latlng)
           .setContent(e.latlng.toString())
-          .openOn(this.map);
+          .openOn(Alpine.raw(this.map));
       }
       this.map.on('click', onMapClick);
     },
@@ -103,9 +103,12 @@ export default function useAdminClient() {
               this.selectDriver(user.phone);
             }
           })
-          .addTo(this.map);
+          .addTo(Alpine.raw(this.map));
       } else {
-        this.markers[user.phone].setLatLng(new L.LatLng(...latLng));
+        this.markers[user.phone].slideTo(new L.LatLng(...latLng), {
+          duration: 1250,
+          keepAtCenter: false,
+        });
       }
     },
     addUser: async function() {

@@ -30,4 +30,7 @@ return [
         'version' => '1.9.4',
         'type' => 'css',
     ],
+    'leaflet.marker.slideto' => [
+        'version' => '0.3.0',
+    ],
 ];

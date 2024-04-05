@@ -36,12 +36,12 @@ export default function useDriverClient() {
       }
 
       if (!this.userMarker) {
-        this.userMarker = L.marker(latLng, {icon: TaxiMap.getDriverIcon(1.5)}).addTo(this.map);
+        this.userMarker = L.marker(latLng, {icon: TaxiMap.getDriverIcon(1.5)}).addTo(Alpine.raw(this.map));
       } else {
         this.userMarker.setLatLng(new L.LatLng(...latLng));
       }
 
-      TaxiMap.moveMap(this.map, latLng);
+      TaxiMap.moveMap(Alpine.raw(this.map), latLng);
     },
     async _saveLocation(latLng) {
       try {
