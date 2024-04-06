@@ -18,7 +18,7 @@ class Tracking extends \Codeception\Module
         $user = $this->ensureUserEntity($user);
 
         /** @var DocumentManager $documentManager */
-        $documentManager = $this->getModule('Symfony')->grabService(DocumentManager::class);
+        $documentManager = $this->getModule('Symfony')->grabService('doctrine_mongodb.odm.default_document_manager');
         $location = $documentManager->getRepository(TrackingLocation::class)
             ->findOneBy(['userId' => $user->getId()]);
 
