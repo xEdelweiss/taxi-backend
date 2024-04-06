@@ -1,32 +1,34 @@
 import Alpine from 'alpinejs';
 import L from 'leaflet';
-import TaxiMap from './TaxiMap.js';
 import TaxiUtils from './TaxiUtils.js';
+import Map from './Map.js';
 
 export default function useAdminClient() {
+  // keep outside the Data to prevent wrapping it in a Proxy
+  let map = null;
+
   Alpine.data('adminClient', () => ({
     showControls: true,
-    everybody: [],
-    markers: {},
+    people: [],
     coordinates: {},
     interval: null,
 
     get users() {
-      return this.everybody.filter(user => user.type === 'user');
+      return this.people.filter(user => user.type === 'user');
     },
 
     get drivers() {
-      return this.everybody.filter(user => user.type === 'driver');
+      return this.people.filter(user => user.type === 'driver');
     },
 
     async init() {
       this.$nextTick(() => this._initMap('admin-map'));
+      this.$watch('people', () => this._refreshMarkers());
       this.$watch('coordinates', () => this._redrawMarkers());
 
       await this.refreshUsers();
-      this._redrawMarkers();
 
-      if (this.everybody.length === 0) {
+      if (this.users.length === 0) {
         await this.addUser();
       }
 
@@ -34,30 +36,33 @@ export default function useAdminClient() {
         await this.addDriver();
       }
 
+      this._redrawMarkers();
+
       this.selectUser(this.users[0].phone);
       this.selectDriver(this.drivers[0].phone);
 
       // this.interval = setInterval(async () => {
       //   await this.refreshUsers(true);
-      //   this._redrawMarkers();
       // }, 1000);
     },
+
     // destroy() {
     //   console.log('destroy');
     //   clearInterval(this.interval);
     // },
+
     _initMap(id) {
-      this.map = TaxiMap.createMap(id, 14);
+      map = new Map(id, 14);
 
       const coordsPopup = L.popup();
-      const onMapClick= (e) => {
+      map.onClick((e) => {
         coordsPopup
           .setLatLng(e.latlng)
           .setContent(e.latlng.toString())
-          .openOn(Alpine.raw(this.map));
-      }
-      this.map.on('click', onMapClick);
+          .openOn(map);
+      });
     },
+
     refreshUsers(onlyLocations = false) {
       return fetch('/debug/users')
         .then(response => response.json())
@@ -68,62 +73,81 @@ export default function useAdminClient() {
           }, {});
 
           if (!onlyLocations) {
-            this.everybody = data;
+            this.people = data;
           }
         });
     },
-    _redrawMarkers() {
-      this.everybody.forEach(user => this._moveMarker(user));
+
+    _refreshMarkers() {
+      this.people.forEach(user => {
+        if (!map.hasMarker(`phone-${user.phone}`)) {
+          map.addMarker(
+            `phone-${user.phone}`,
+            L.marker([0, 0], {
+                icon: Map.getIcon(user.type),
+              })
+              .bindTooltip(TaxiUtils.formatPhone(user.phone), {
+                permanent: false,
+                direction: 'right',
+                offset: [16, -20],
+                className: 'font-semibold text-sm bg-white text-gray-800 p-2 rounded-md shadow-md',
+              })
+              .on('click', () => {
+                if (user.type === 'user') {
+                  this.selectUser(user.phone);
+                } else {
+                  this.selectDriver(user.phone);
+                }
+              })
+
+          );
+        }
+      });
+
+      // remove markers for users that are no longer in the list
+      const phones = this.people.map(user => user.phone);
+      map.getMarkersIds().forEach(id => {
+        const phone = id.replace('phone-', '');
+
+        if (!phones.includes(phone)) {
+          map.removeMarker(id);
+        }
+      });
     },
+
+    _redrawMarkers() {
+      this.people.forEach(user => this._moveMarker(user));
+    },
+
     _moveMarker(user) {
-      if (!this.coordinates[user.phone] || !this.map) {
+      if (!map) {
         console.log('no coords or map');
         return;
       }
 
-      const latLng = [
+      const latLng = this.coordinates[user.phone] ? [
         this.coordinates[user.phone].latitude,
         this.coordinates[user.phone].longitude,
-      ];
+      ] : null;
 
-      if (!this.markers[user.phone]) {
-        this.markers[user.phone] = L.marker(latLng, {
-            icon: TaxiMap.getIcon(user.type),
-          })
-          .bindTooltip(TaxiUtils.formatPhone(user.phone), {
-            permanent: false,
-            direction: 'right',
-            offset: [16, -20],
-            className: 'font-semibold text-sm bg-white text-gray-800 p-2 rounded-md shadow-md',
-          })
-          .on('click', () => {
-            if (user.type === 'user') {
-              this.selectUser(user.phone);
-            } else {
-              this.selectDriver(user.phone);
-            }
-          })
-          .addTo(Alpine.raw(this.map));
-      } else {
-        this.markers[user.phone].slideTo(new L.LatLng(...latLng), {
-          duration: 1250,
-          keepAtCenter: false,
-        });
-      }
+      map.moveMarker(`phone-${user.phone}`, latLng, false, 1250);
     },
-    addUser: async function() {
+
+    addUser: async function () {
       return this._makeUser('user')
         .then(data => {
-          this.everybody.push(data);
+          this.people.push(data);
         });
     },
-    addDriver: async function() {
+
+    addDriver: async function () {
       return this._makeUser('driver')
         .then(data => {
           this.drivers.push(data);
         });
     },
-    _makeUser: function(type) {
+
+    _makeUser: function (type) {
       return fetch('/debug/users', {
         method: 'POST',
         headers: {
@@ -134,23 +158,26 @@ export default function useAdminClient() {
         .then(response => response.json())
         .then(({data}) => data);
     },
-    removeUser: function(phone) {
-      this._deleteUser(phone)
+
+    removeUser: function (phone) {
+      this._deletePerson(phone)
         .then(() => {
-          this.everybody = this.everybody.filter(user => user.phone !== phone);
+          this.people = this.people.filter(user => user.phone !== phone);
           this.$dispatch('user-removed', {phone});
           console.log('Event:', 'user-removed', {phone});
         });
     },
-    removeDriver: function(phone) {
-      this._deleteUser(phone)
+
+    removeDriver: function (phone) {
+      this._deletePerson(phone)
         .then(() => {
           this.drivers = this.drivers.filter(driver => driver.phone !== phone);
           this.$dispatch('driver-removed', {phone});
           console.log('Event:', 'driver-removed', {phone});
         });
     },
-    _deleteUser: function(phone) {
+
+    _deletePerson: function (phone) {
       return fetch('/debug/users', {
         method: 'DELETE',
         headers: {
@@ -161,11 +188,13 @@ export default function useAdminClient() {
         .then(response => response.json())
         .then(({data}) => data);
     },
-    selectUser: function(phone) {
+
+    selectUser: function (phone) {
       this.$dispatch('user-selected', {phone});
       console.log('Event:', 'user-selected', {phone});
     },
-    selectDriver: function(phone) {
+
+    selectDriver: function (phone) {
       this.$dispatch('driver-selected', {phone});
       console.log('Event:', 'driver-selected', {phone});
     },

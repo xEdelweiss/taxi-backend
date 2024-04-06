@@ -1,11 +1,14 @@
 import {decode} from '@googlemaps/polyline-codec';
+import L from "leaflet";
 
 class Map {
   map = null;
   markers = {};
+  defaultZoom = TaxiConsts.MAP_ZOOM;
 
   constructor(containerId, zoom = TaxiConsts.MAP_ZOOM, latLng = TaxiConsts.MAP_CENTER) {
-    this.map = this._createMap(containerId);
+    this.defaultZoom = zoom;
+    this.map = this._createMap(containerId, zoom, latLng);
   }
 
   static decodePolyline(polyline) {
@@ -45,7 +48,7 @@ class Map {
     });
   }
 
-  move(latLng, zoom = 16) {
+  move(latLng, zoom = this.defaultZoom) {
     if (latLng[0] === 0 && latLng[1] === 0) {
       return;
     }
@@ -74,20 +77,47 @@ class Map {
     return null;
   }
 
-  moveMarker(id, latLng, alignMap = false) {
+  moveMarker(id, latLng, alignMap = false, duration = 0) {
     latLng ??= [0, 0];
 
-    this.markers[id].setLatLng(new L.LatLng(...latLng));
-    this._toggleVisibility(id);
-
-    if (alignMap) {
-      this.move(latLng);
+    if (!this.markers[id]) {
+      return;
     }
+
+    duration = !this._isVisible(id) ? 0 : duration;
+
+    if (duration === 0) {
+      this.markers[id].setLatLng(new L.LatLng(...latLng));
+
+      if (alignMap) {
+        this.move(latLng);
+      }
+    } else {
+      this.markers[id].slideTo(new L.LatLng(...latLng), {
+        duration,
+        keepAtCenter: alignMap,
+      });
+    }
+
+    this._toggleVisibility(id);
   }
 
   replaceMarker(id, marker) {
     this.removeMarker(id);
     this.addMarker(id, marker);
+  }
+
+  hasMarker(id) {
+    return this.markers[id] !== undefined;
+  }
+
+  getMarkersIds() {
+    return Object.keys(this.markers);
+  }
+
+  _isVisible(id) {
+    return this.map.hasLayer(this.markers[id])
+      && !this.markers[id].getLatLng().equals(new L.LatLng(0, 0));
   }
 
   _toggleVisibility(id) {
@@ -115,7 +145,7 @@ class Map {
     });
   }
 
-  _createMap(containerId, zoom = TaxiConsts.MAP_ZOOM, latLng = TaxiConsts.MAP_CENTER) {
+  _createMap(containerId, zoom, latLng) {
     const map = L.map(containerId).setView(latLng, zoom);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
