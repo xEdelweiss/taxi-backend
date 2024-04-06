@@ -86,8 +86,64 @@ class TaxiApi {
     });
   }
 
+  async fetchRoute(fromLatLng, fromAddress, toLatLng, toAddress, token) {
+    if (!token) {
+      throw new Error('No token provided');
+    }
+
+    const {data} = await fetch('/api/navigation/routes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        start: {
+          latitude: fromLatLng[0],
+          longitude: fromLatLng[1],
+          address: fromAddress,
+        },
+        end: {
+          latitude: toLatLng[0],
+          longitude: toLatLng[1],
+          address: toAddress,
+        },
+      }),
+    }).then(response => response.json());
+
+    return data.route;
+  }
+
+  async fetchEstimation(fromLatLng, fromAddress, toLatLng, toAddress, token) {
+    if (!token) {
+      throw new Error('No token provided');
+    }
+
+    const {data} = await fetch('/api/cost/estimations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        start: {
+          latitude: fromLatLng[0],
+          longitude: fromLatLng[1],
+          address: fromAddress,
+        },
+        end: {
+          latitude: toLatLng[0],
+          longitude: toLatLng[1],
+          address: toAddress,
+        },
+      }),
+    }).then(response => response.json());
+
+    return data;
+  }
+
   async _fetchLocation(phone) {
-    const {data: {locations}}  = await fetch(`/debug/last-location?phones[]=${phone}`, {
+    const {data: {locations}} = await fetch(`/debug/last-location?phones[]=${phone}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

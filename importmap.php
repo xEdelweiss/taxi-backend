@@ -33,4 +33,7 @@ return [
     'leaflet.marker.slideto' => [
         'version' => '0.3.0',
     ],
+    '@googlemaps/polyline-codec' => [
+        'version' => '1.0.28',
+    ],
 ];

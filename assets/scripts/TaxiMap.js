@@ -1,3 +1,5 @@
+import {decode} from '@googlemaps/polyline-codec';
+
 class TaxiMap {
   createMap(containerId, zoom = TaxiConsts.MAP_ZOOM, latLng = TaxiConsts.MAP_CENTER) {
     const map = L.map(containerId).setView(latLng, zoom);
@@ -8,6 +10,13 @@ class TaxiMap {
     }).addTo(map);
 
     return map;
+  }
+
+  decodePolyline(polyline) {
+    console.log('DECODED POLYLINE', decode(polyline));
+
+    return decode(polyline)
+    .map(([lat, lng]) => new L.LatLng(lat, lng));
   }
 
   moveMap(map, latLng, zoom = 16) {

@@ -36,6 +36,8 @@ class NavigationController extends AbstractController
                 'route' => [
                     'distance' => $route->distance,
                     'duration' => $route->duration,
+                    'polyline' => $route->polyline,
+                    'boundingBox' => $route->boundingBox,
                 ]
             ],
         ]);

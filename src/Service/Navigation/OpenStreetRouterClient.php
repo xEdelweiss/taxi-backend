@@ -39,6 +39,17 @@ class OpenStreetRouterClient implements RouterClientInterface
             $finish,
             $route['routes'][0]['summary']['distance'],
             $route['routes'][0]['summary']['duration'],
+            $route['routes'][0]['geometry'],
+            [
+                [
+                    'latitude' => $route['routes'][0]['bbox'][1],
+                    'longitude' => $route['routes'][0]['bbox'][0],
+                ],
+                [
+                    'latitude' => $route['routes'][0]['bbox'][3],
+                    'longitude' => $route['routes'][0]['bbox'][2],
+                ],
+            ]
         );
     }
 }

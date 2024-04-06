@@ -6,7 +6,7 @@
 >
     <div class="h-full z-0" id="client-map"></div>
 
-    <div x-show="token" :title="'lat:' + userLatLng[0] + ', lng: ' + userLatLng[1]" class="absolute top-4 right-4 px-4 py-2 z-10 bg-white rounded-lg flex gap-4">
+    <div x-show="token" :title="'lat:' + activeLatLng?.[0] + ', lng: ' + activeLatLng?.[1]" class="absolute top-4 right-4 px-4 py-2 z-10 bg-white rounded-lg flex gap-4">
         {{ source('icons/user-icon.svg.twig') }}
 
         <div class="flex flex-col justify-center gap-1">
@@ -16,23 +16,50 @@
     </div>
 
     <div x-show="token" class="absolute bottom-4 right-4 left-4 p-4 z-10 bg-white rounded-lg flex justify-between gap-3">
-        <div class="flex gap-2 w-full">
-            <div class="flex flex-col justify-around w-full">
-                <div class="text-gray-500 text-sm">Address:</div>
-                <div class="text-gray-800 font-semibold text-md">
-                    <input aria-label="Address" type="text" x-model="address" class="w-full bg-transparent border-b border-gray-300 focus:border-gray-500 focus:outline-none" />
+        <div class="flex flex-col gap-2 w-full">
+            {# from #}
+            <div @click="$refs.startInput.focus()" class="flex gap-2 w-full border-b border-gray-300 focus-within:border-gray-500">
+                <div class="py-1 text-gray-300 cursor-pointer" :class="{'text-gray-800': selectedAddress == 'start', 'hover:text-gray-600': selectedAddress != 'start'}">
+                    {{ source('icons/pin.svg.twig') }}
                 </div>
+
+                <div class="flex flex-col justify-around w-full">
+                    <div class="text-gray-500 text-sm">Start address:</div>
+                    <div class="text-gray-800 font-semibold text-md">
+                        <input @focus="selectedAddress = 'start'" x-ref="startInput" aria-label="Address" type="text" x-model="startAddress" class="w-full bg-transparent focus:outline-none" />
+                    </div>
+                </div>
+
+                <button @click="findAddress()" class="shrink-0 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-tl-lg rounded-tr-lg">
+                    {{ source('icons/find.svg.twig') }}
+                </button>
             </div>
 
-            <button @click="findAddress()" class="shrink-0 bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                {{ source('icons/find.svg.twig') }}
-            </button>
+            {# to #}
+            <div @click="$refs.endInput.focus()" class="flex gap-2 w-full border-b border-gray-300 focus-within:border-gray-500">
+                <div class="py-1 text-gray-300 cursor-pointer" :class="{'text-gray-800': selectedAddress == 'end', 'hover:text-gray-600': selectedAddress != 'end'}">
+                    {{ source('icons/pin.svg.twig') }}
+                </div>
+
+                <div class="flex flex-col justify-around w-full">
+                    <div class="text-gray-500 text-sm">Finish address:</div>
+                    <div class="text-gray-800 font-semibold text-md">
+                        <input @focus="selectedAddress = 'end'" x-ref="endInput" aria-label="Address" type="text" x-model="endAddress" class="w-full bg-transparent focus:outline-none" />
+                    </div>
+                </div>
+
+                <button @click="findAddress()" class="shrink-0 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-tl-lg rounded-tr-lg">
+                    {{ source('icons/find.svg.twig') }}
+                </button>
+            </div>
         </div>
 
-        <button class="bg-orange-600 hover:bg-orange-800 text-white px-4 py-2 rounded-lg flex gap-2 items-center">
-            <span>Drive</span>
-
-            {{ source('icons/start.svg.twig') }}
+        <button class="bg-orange-600 hover:bg-orange-800 text-white px-4 py-2 rounded-lg flex flex-col gap-2 justify-center items-center">
+            <div class="flex gap-2 items-center">
+                <span>Drive</span>
+                {{ source('icons/start.svg.twig') }}
+            </div>
+            <span x-show="formattedCost" x-text="formattedCost" class="text-xs opacity-75"></span>
         </button>
     </div>
 </div>

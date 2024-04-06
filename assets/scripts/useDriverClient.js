@@ -1,70 +1,81 @@
 import Alpine from 'alpinejs';
 import L from 'leaflet';
-import TaxiMap from './TaxiMap.js';
 import TaxiApi from './TaxiApi.js';
+import Map from './Map.js';
 
 export default function useDriverClient() {
+  // keep outside the Data to prevent wrapping it in a Proxy
+  let map = null;
+
   Alpine.data('driverClient', () => ({
-    selectedPhone: null,
-    token: null,
-    map: null,
-    userMarker: null,
-    userLatLng: [0, 0],
-    init() {
-      this.$nextTick(() => this._initMap('driver-map'));
-      this.$watch('userLatLng', (latLng) => this._moveMarker(latLng));
-      this.$watch('userLatLng', (latLng) => this._saveLocation(latLng));
-      this.$watch('selectedPhone', async (phone, oldPhone) => {
-        if (oldPhone !== phone) {
-          this.token = null;
+      selectedPhone: null,
+      token: null,
+
+      driverLatLng: null,
+
+      init() {
+        this.$nextTick(() => this._initMap('driver-map'));
+
+        this.$watch('driverLatLng', (latLng) => map.moveMarker('driver', latLng, true));
+        this.$watch('driverLatLng', (latLng) => this._saveLocation(latLng)); // we are faking driver's movement
+
+        this.$watch('selectedPhone', async (phone, oldPhone) => {
+          if (oldPhone !== phone) {
+            this._reset();
+          }
+
+          await this._login(phone);
+        });
+      },
+
+      _initMap(id) {
+        map = new Map(id);
+
+        map.addMarker('driver', makeMarker([0, 0]));
+
+        map.onClick((e) => {
+          this.driverLatLng = [e.latlng.lat, e.latlng.lng];
+        });
+      },
+
+      _reset() {
+        this.token = null;
+
+        this.driverLatLng = null;
+      },
+
+      async _saveLocation(latLng) {
+        if (!this.token || !latLng) {
+          return;
         }
 
-        this._login(phone);
-      });
-    },
-    _initMap(id) {
-      this.map = TaxiMap.createMap(id);
+        try {
+          await TaxiApi.saveLocation(latLng, this.token);
 
-      this.map.on('click', (e) => {
-        this.userLatLng = [e.latlng.lat, e.latlng.lng];
-      });
-    },
-    _moveMarker(latLng) {
-      if (!latLng || !this.map) {
-        console.log('no coords or map');
-        return;
-      }
+          this.$dispatch('driver-moved', {phone: this.selectedPhone});
+        } catch (e) {
+          console.warn(e);
+        }
+      },
 
-      if (!this.userMarker) {
-        this.userMarker = L.marker(latLng, {icon: TaxiMap.getDriverIcon(1.5)}).addTo(Alpine.raw(this.map));
-      } else {
-        this.userMarker.setLatLng(new L.LatLng(...latLng));
-      }
+      async _login(phone) {
+        if (this.token || !phone) {
+          return;
+        }
 
-      TaxiMap.moveMap(Alpine.raw(this.map), latLng);
-    },
-    async _saveLocation(latLng) {
-      try {
-        await TaxiApi.saveLocation(latLng, this.token);
+        try {
+          const {token, latLng} = await TaxiApi.login(phone);
 
-        this.$dispatch('driver-moved', {phone: this.selectedPhone});
-      } catch (e) {
-        console.error(e);
-      }
-    },
-    async _login(phone) {
-      if (this.token || !phone) {
-        return;
-      }
+          this.token = token;
+          this.driverLatLng = latLng;
+        } catch (e) {
+          console.warn(e);
+        }
+      },
+    })
+  );
 
-      try {
-        const {token, latLng} = await TaxiApi.login(phone);
-
-        this.token = token;
-        this.userLatLng = latLng;
-      } catch (e) {
-        console.error(e);
-      }
-    },
-  }));
+  function makeMarker(latLng) {
+    return L.marker(latLng, {icon: Map.getDriverIcon(1.5)});
+  }
 }

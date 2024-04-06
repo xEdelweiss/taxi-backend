@@ -50,6 +50,12 @@ symfony serve
 2. Put the data into `var/ors-docker/files/map-odesa-test.osm` or change the file name in `var/ors-docker/config/ors-config.yml:102`
 3. Run `docker-compose up` to start the service (`REBUILD_GRAPHS` should be `True` to rebuild the graphs)
 
+## Production Environment
+
+### Deployment
+
+* Compile assets: `php bin/console asset-map:compile`
+
 ## Notes
 
 Custom OSM tiles: https://leaflet-extras.github.io/leaflet-providers/preview/
