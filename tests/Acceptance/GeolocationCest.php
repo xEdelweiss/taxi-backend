@@ -24,9 +24,7 @@ class GeolocationCest
 
         $i->seeHttpHeader('Content-Language', explode('-', $example[0])[0]);
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'address' => $example[3],
-            ],
+            'address' => $example[3],
         ]);
     }
 
@@ -44,10 +42,8 @@ class GeolocationCest
 
         $i->seeHttpHeader('Content-Language', explode('-', $example[0])[0]);
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'latitude' => $example[2],
-                'longitude' => $example[3],
-            ],
+            'latitude' => $example[2],
+            'longitude' => $example[3],
         ]);
     }
 }

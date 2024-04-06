@@ -3,6 +3,8 @@
 
 namespace App\Tests\Acceptance;
 
+use App\Entity\Embeddable\Location;
+use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
 use App\Entity\User;
 use App\Service\Trip\Enum\TripStatus;
@@ -54,10 +56,17 @@ class StripePaymentCest
         $i->haveUser(p(1));
         $i->linkPaymentAccountId(p(1));
         $i->haveInRepository(TripOrder::class, [
-            'cost' => 1234,
-            'currency' => 'USD',
+            'cost' => new Money(1234, 'USD'),
             'status' => TripStatus::WaitingForPayment,
+
+            // @fixme not required
+            'start' => new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698),
+            'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186)
         ]);
+
+        // @fixme not required: better to mute the event/listener that looks for a driver
+        $i->haveDriver(p(2));
+        $i->moveToLocation(p(2), 46.42738, 30.75128);
 
         $i->loginAs(p(1));
         $i->sendPostAsJson('/api/payment/holds', [
@@ -65,44 +74,47 @@ class StripePaymentCest
         ]);
 
         $i->seeResponse(HttpCode::CREATED, [
-            'data' => [
-                'amount' => 1234,
-                'currency' => 'USD',
-                'captured' => false,
-                'order_id' => 1,
-            ],
+            'amount' => 1234,
+            'currency' => 'USD',
+            'captured' => false,
+            'order_id' => 1,
         ]);
 
-        $i->assertNotEmpty($i->grabDataFromResponseByJsonPath('$.data.id')[0]);
+        $i->assertNotEmpty($i->grabDataFromResponseByJsonPath('$.id')[0]);
     }
 
-    public function canCaptureHeldPaymentForTripe(AcceptanceTester $i): void
+    public function canCaptureHeldPaymentForTrip(AcceptanceTester $i): void
     {
         $i->haveUser(p(1));
         $i->linkPaymentAccountId(p(1));
         $i->haveInRepository(TripOrder::class, [
-            'cost' => 1234,
-            'currency' => 'USD',
+            'cost' => new Money(1234, 'USD'),
             'status' => TripStatus::WaitingForPayment,
+            // @fixme not required
+            'start' => new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698),
+            'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186)
         ]);
+
+        // @fixme not required: better to mute the event/listener that looks for a driver
+        $i->haveDriver(p(2));
+        $i->moveToLocation(p(2), 46.42738, 30.75128);
+
         $i->loginAs(p(1));
         $i->sendPostAsJson('/api/payment/holds', [
             'order_id' => 1,
         ]);
         $i->seeResponseCodeIs(HttpCode::CREATED);
-        $holdId = $i->grabDataFromResponseByJsonPath('$.data.id')[0];
+        $holdId = $i->grabDataFromResponseByJsonPath('$.id')[0];
 
         $i->sendPutAsJson("/api/payment/holds/{$holdId}", [
             'captured' => true,
         ]);
 
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'amount' => 1234,
-                'currency' => 'USD',
-                'captured' => true,
-                'order_id' => 1,
-            ],
+            'amount' => 1234,
+            'currency' => 'USD',
+            'captured' => true,
+            'order_id' => 1,
         ]);
     }
 }

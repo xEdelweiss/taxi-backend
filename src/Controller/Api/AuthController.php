@@ -2,17 +2,24 @@
 
 namespace App\Controller\Api;
 
+use App\Attribute\Output;
+use App\Dto\Auth\CurrentUserResponse;
+use App\Dto\Auth\RegisterPayload;
+use App\Dto\Auth\RegisterResponse;
 use App\Entity\User;
 use App\Event\UserRegistered;
 use Doctrine\ORM\EntityManagerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: 'Authentication')]
 class AuthController extends AbstractController
 {
     public function __construct(
@@ -21,9 +28,9 @@ class AuthController extends AbstractController
     ) {}
 
     #[Route('/api/auth/register', methods: ['POST'], name: 'api_auth_register')]
-    public function register(Request $request, UserPasswordHasherInterface $hasher): JsonResponse
+    #[Output(RegisterResponse::class, Response::HTTP_CREATED)]
+    public function register(#[MapRequestPayload] RegisterPayload $payload, UserPasswordHasherInterface $hasher): JsonResponse
     {
-        $payload = (object) $request->getPayload()->all();
         $user = new User($payload->phone);
         $user->setPassword($hasher->hashPassword($user, $payload->password));
 
@@ -32,31 +39,17 @@ class AuthController extends AbstractController
 
         $this->eventDispatcher->dispatch(new UserRegistered($user->getId()));
 
-        return $this->json([
-            'message' => 'Account created.',
-        ], Response::HTTP_CREATED);
+        return $this->json(new RegisterResponse(), Response::HTTP_CREATED);
     }
 
     #[Route('/api/auth/me', methods: ['GET'])]
+    #[Output(CurrentUserResponse::class)]
     public function me(): Response
     {
         if (!$this->getUser()) {
             return $this->json(['message' => 'Unauthorized.'], Response::HTTP_UNAUTHORIZED);
         }
 
-        $roles = array_filter(array_map(
-            fn($role) => match ($role) {
-                'ROLE_USER' => 'user',
-                'ROLE_DRIVER' => 'driver',
-                default => null,
-            },
-            $this->getUser()->getRoles()
-        ));
-
-        return $this->json([
-            'id' => $this->getUser()->getId(),
-            'phone' => $this->getUser()->getPhone(),
-            'roles' => $roles,
-        ]);
+        return $this->json(new CurrentUserResponse($this->getUser()));
     }
 }

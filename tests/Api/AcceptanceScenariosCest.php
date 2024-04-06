@@ -38,10 +38,8 @@ class AcceptanceScenariosCest
             'online' => true,
         ]);
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'id' => 2,
-                'online' => true,
-            ],
+            'id' => 2,
+            'online' => true,
         ]);
 
         // User: Get start address by location
@@ -51,9 +49,7 @@ class AcceptanceScenariosCest
             'longitude' => 30.751279752912698,
         ]);
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'address' => 'fake-46.42-30.75',
-            ],
+            'address' => 'fake-46.42-30.75',
         ]);
 
         // User: Get destination location by address
@@ -61,10 +57,8 @@ class AcceptanceScenariosCest
             'address' => 'Sehedska Street, 5'
         ]);
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'latitude' => 01.18,
-                'longitude' => 02.18,
-            ],
+            'latitude' => 01.18,
+            'longitude' => 02.18,
         ]);
 
         // User: Estimate cost
@@ -84,10 +78,8 @@ class AcceptanceScenariosCest
             'end' => $END_LOCATION,
         ]);
         $i->seeResponse(HttpCode::CREATED, [
-            'data' => [
-                'cost' => 39540,
-                'currency' => 'USD'
-            ],
+            'cost' => 39540,
+            'currency' => 'USD'
         ]);
 
         // User: Confirm order
@@ -96,25 +88,23 @@ class AcceptanceScenariosCest
             'end' => $END_LOCATION
         ]);
         $i->seeResponse(HttpCode::CREATED, [
-            'data' => [
-                'id' => 1,
-                'status' => 'WAITING_FOR_PAYMENT',
-                'start' => [
-                    'latitude' => 46.42738,
-                    'longitude' => 30.75128,
-                    'address' => '7th st. Fontanskoyi dorohy',
-                ],
-                'end' => [
-                    'latitude' => 46.45154,
-                    'longitude' => 30.74398,
-                    'address' => 'Sehedska Street, 5',
-                ],
-                'price' => [
-                    'amount' => 39540,
-                    'currency' => 'USD',
-                ],
-                'trip_time' => 319,
+            'id' => 1,
+            'status' => 'WAITING_FOR_PAYMENT',
+            'start' => [
+                'latitude' => 46.42738,
+                'longitude' => 30.75128,
+                'address' => '7th st. Fontanskoyi dorohy',
             ],
+            'end' => [
+                'latitude' => 46.45154,
+                'longitude' => 30.74398,
+                'address' => 'Sehedska Street, 5',
+            ],
+            'cost' => [
+                'amount' => 39540,
+                'currency' => 'USD',
+            ],
+            'trip_time' => 319,
         ]);
 
         // User: Hold payment for the order
@@ -122,11 +112,9 @@ class AcceptanceScenariosCest
             'order_id' => 1,
         ]);
         $i->seeResponseCodeIs(HttpCode::CREATED, [
-            'data' => [
-                'id' => 1,
-                'order_id' => 1,
-                'captured' => false,
-            ],
+            'id' => 1,
+            'order_id' => 1,
+            'captured' => false,
         ]);
 
         $i->seeEvent(PaymentHeldForOrder::class);
@@ -135,17 +123,15 @@ class AcceptanceScenariosCest
         // User: Poll for status
         $i->sendGetAsJson('/api/trip/orders/1');
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'id' => 1,
-                'status' => 'WAITING_FOR_DRIVER',
-            ],
+            'id' => 1,
+            'status' => 'WAITING_FOR_DRIVER',
         ]);
 
         // Driver: Get order
         $i->loginAs(p(2));
         $i->sendGetAsJson('/api/trip/orders');
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
+            'items' => [
                 [
                     'id' => 1,
                     'status' => 'WAITING_FOR_DRIVER',
@@ -168,20 +154,16 @@ class AcceptanceScenariosCest
             'status' => 'DRIVER_ON_WAY',
         ]);
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'id' => 1,
-                'status' => 'DRIVER_ON_WAY',
-            ],
+            'id' => 1,
+            'status' => 'DRIVER_ON_WAY',
         ]);
 
         // User: Poll for status
         $i->loginAs(p(1));
         $i->sendGetAsJson('/api/trip/orders/1');
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'id' => 1,
-                'status' => 'DRIVER_ON_WAY',
-            ],
+            'id' => 1,
+            'status' => 'DRIVER_ON_WAY',
         ]);
 
         // Driver: Arrived
@@ -190,20 +172,16 @@ class AcceptanceScenariosCest
             'status' => 'DRIVER_ARRIVED',
         ]);
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'id' => 1,
-                'status' => 'DRIVER_ARRIVED',
-            ],
+            'id' => 1,
+            'status' => 'DRIVER_ARRIVED',
         ]);
 
         // User: Poll for status
         $i->loginAs(p(1));
         $i->sendGetAsJson('/api/trip/orders/1');
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'id' => 1,
-                'status' => 'DRIVER_ARRIVED',
-            ],
+            'id' => 1,
+            'status' => 'DRIVER_ARRIVED',
         ]);
 
         // Driver: Start trip
@@ -233,20 +211,16 @@ class AcceptanceScenariosCest
             'status' => 'COMPLETED',
         ]);
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'id' => 1,
-                'status' => 'COMPLETED',
-            ],
+            'id' => 1,
+            'status' => 'COMPLETED',
         ]);
 
         // User: Poll for status
         $i->loginAs(p(1));
         $i->sendGetAsJson('/api/trip/orders/1');
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'id' => 1,
-                'status' => 'COMPLETED',
-            ],
+            'id' => 1,
+            'status' => 'COMPLETED',
         ]);
 
         // User: Rate driver
@@ -256,12 +230,10 @@ class AcceptanceScenariosCest
             'comment' => 'Great driver!',
         ]);
         $i->seeResponseCodeIs(HttpCode::CREATED, [
-            'data' => [
-                'id' => 1,
-                'order_id' => 1,
-                'rating' => 5,
-                'comment' => 'Great driver!',
-            ],
+            'id' => 1,
+            'order_id' => 1,
+            'rating' => 5,
+            'comment' => 'Great driver!',
         ]);
 
         // Drive: Stop working

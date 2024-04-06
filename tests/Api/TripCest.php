@@ -32,25 +32,23 @@ class TripCest
         ]);
 
         $i->seeResponse(HttpCode::CREATED, [
-            'data' => [
-                'id' => 1,
-                'status' => 'WAITING_FOR_PAYMENT',
-                'start' => [
-                    'latitude' => 46.42738,
-                    'longitude' => 30.75128,
-                    'address' => '7th st. Fontanskoyi dorohy',
-                ],
-                'end' => [
-                    'latitude' => 46.42317,
-                    'longitude' => 30.74705,
-                    'address' => 'Sehedska Street, 5',
-                ],
-                'price' => [
-                    'amount' => 6345,
-                    'currency' => 'USD',
-                ],
-                'trip_time' => 68.3,
+            'id' => 1,
+            'status' => 'WAITING_FOR_PAYMENT',
+            'start' => [
+                'latitude' => 46.42738,
+                'longitude' => 30.75128,
+                'address' => '7th st. Fontanskoyi dorohy',
             ],
+            'end' => [
+                'latitude' => 46.42317,
+                'longitude' => 30.74705,
+                'address' => 'Sehedska Street, 5',
+            ],
+            'cost' => [
+                'amount' => 6345,
+                'currency' => 'USD',
+            ],
+            'trip_time' => 68.3,
         ]);
     }
 
@@ -83,17 +81,17 @@ class TripCest
         $i->loginAs(p(1));
         $i->sendGetAsJson('/api/trip/orders');
         $i->seeResponseCodeIs(HttpCode::OK);
-        $i->seeResponseEquals('{"data":[]}');
+        $i->seeResponseEquals('{"items":[]}');
 
         $i->loginAs(p(2));
         $i->sendGetAsJson('/api/trip/orders');
         $i->seeResponseCodeIs(HttpCode::OK);
-        $i->seeResponseEquals('{"data":[]}');
+        $i->seeResponseEquals('{"items":[]}');
 
         $i->loginAs(p(3));
         $i->sendGetAsJson('/api/trip/orders');
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
+            'items' => [
                 [
                     'id' => 1,
                     'status' => 'WAITING_FOR_DRIVER',

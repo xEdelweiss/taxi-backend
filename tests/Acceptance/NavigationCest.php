@@ -28,12 +28,8 @@ class NavigationCest
         ]);
 
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'route' => [
-                    'distance' => 634.5,
-                    'duration' => 68.3,
-                ],
-            ],
+            'distance' => 634.5,
+            'duration' => 68.3,
         ]);
     }
 

@@ -2,12 +2,17 @@
 
 namespace App\Controller\Api;
 
+use App\Attribute\Output;
+use App\Dto\Navigation\CreateRoutePayload;
+use App\Dto\Navigation\RouteResponse;
 use App\Service\NavigationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: 'Navigation')]
 #[Route('/api/navigation')]
 class NavigationController extends AbstractController
 {
@@ -16,30 +21,14 @@ class NavigationController extends AbstractController
     ) {}
 
     #[Route('/routes', methods: ['POST'])]
-    public function calculateRoute(Request $request): Response
+    #[Output(RouteResponse::class)]
+    public function calculateRoute(#[MapRequestPayload] CreateRoutePayload $payload): Response
     {
-        $payload = $request->getPayload()->all();
+        $route = $this->navigationService->calculateRoute(
+            $payload->start->toLatLng(),
+            $payload->end->toLatLng(),
+        );
 
-        $start = [
-            $payload['start']['latitude'],
-            $payload['start']['longitude'],
-        ];
-        $finish = [
-            $payload['end']['latitude'],
-            $payload['end']['longitude'],
-        ];
-
-        $route = $this->navigationService->calculateRoute($start, $finish);
-
-        return $this->json([
-            'data' => [
-                'route' => [
-                    'distance' => $route->distance,
-                    'duration' => $route->duration,
-                    'polyline' => $route->polyline,
-                    'boundingBox' => $route->boundingBox,
-                ]
-            ],
-        ]);
+        return $this->json(new RouteResponse($route));
     }
 }

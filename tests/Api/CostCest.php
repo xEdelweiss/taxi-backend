@@ -28,10 +28,8 @@ class CostCest
         ]);
 
         $i->seeResponse(HttpCode::CREATED, [
-            'data' => [
-                'cost' => 634.5 * 10,
-                'currency' => 'USD',
-            ],
+            'cost' => 634.5 * 10,
+            'currency' => 'USD',
         ]);
     }
 }

@@ -2,14 +2,21 @@
 
 namespace App\Controller\Api;
 
+use App\Attribute\Output;
+use App\Dto\Geolocation\AddressResponse;
+use App\Dto\Geolocation\AddressToCoordinatesPayload;
+use App\Dto\Geolocation\CoordinatesResponse;
+use App\Dto\Geolocation\CoordinatesToAddressPayload;
 use App\Exception\Geolocation\AddressNotFound;
 use App\Service\Geolocation\GeolocationServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: 'Geolocation')]
 #[Route('/api/geolocation')]
 class GeolocationController extends AbstractController
 {
@@ -18,42 +25,37 @@ class GeolocationController extends AbstractController
     ) {}
 
     #[Route('/addresses', methods: ['POST'])]
-    public function coordsToAddress(Request $request): JsonResponse
+    #[OA\HeaderParameter(name: 'Accept-Language', required: false, schema: new OA\Schema(type: 'string', example: 'uk-UA'))]
+    #[Output(AddressResponse::class)]
+    public function coordsToAddress(#[MapRequestPayload] CoordinatesToAddressPayload $payload, Request $request): JsonResponse
     {
-        $latitude = $request->getPayload()->get('latitude');
-        $longitude = $request->getPayload()->get('longitude');
-
         $addressDto = $this->geolocationService->getGeocoder()
             ->useLocale($request->getLocale())
-            ->coordinatesToAddress($latitude, $longitude);
+            ->coordinatesToAddress(
+                $payload->latitude,
+                $payload->longitude,
+            );
 
-        return $this->json([
-            'data' => [
-                'address' => $addressDto->address,
-            ],
-        ], Response::HTTP_OK);
+        return $this->json(new AddressResponse($addressDto));
     }
 
     #[Route('/coordinates', methods: ['POST'])]
-    public function addressToCoords(Request $request): JsonResponse
+    #[OA\HeaderParameter(name: 'Accept-Language', required: false, schema: new OA\Schema(type: 'string', example: 'uk-UA'))]
+    #[Output(CoordinatesResponse::class)]
+    public function addressToCoords(#[MapRequestPayload] AddressToCoordinatesPayload $payload, Request $request): JsonResponse
     {
-        $address = $request->getPayload()->get('address');
-
         try {
             $coordsDto = $this->geolocationService->getGeocoder()
                 ->useLocale($request->getLocale())
-                ->addressToCoordinates($address);
+                ->addressToCoordinates(
+                    $payload->address,
+                );
         } catch (AddressNotFound $e) {
             return $this->json([
-                'data' => null,
+                'message' => 'Address not found.'
             ], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->json([
-            'data' => [
-                'latitude' => $coordsDto->latitude,
-                'longitude' => $coordsDto->longitude,
-            ],
-        ], Response::HTTP_OK);
+        return $this->json(new CoordinatesResponse($coordsDto));
     }
 }

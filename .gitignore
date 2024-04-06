@@ -1,4 +1,6 @@
 /.idea
+/api.json
+/api.html
 
 ###> symfony/framework-bundle ###
 /.env.local
