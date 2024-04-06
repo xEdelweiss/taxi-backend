@@ -23,9 +23,7 @@ class GeolocationCest
         ]);
 
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'address' => $example[2],
-            ],
+            'address' => $example[2],
         ]);
     }
 
@@ -40,10 +38,8 @@ class GeolocationCest
         ]);
 
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'latitude' => $example[1],
-                'longitude' => $example[2],
-            ],
+            'latitude' => $example[1],
+            'longitude' => $example[2],
         ]);
     }
 }

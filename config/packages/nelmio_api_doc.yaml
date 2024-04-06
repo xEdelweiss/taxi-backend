@@ -1,0 +1,48 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Taxi API
+            description: API for Taxi service
+            version: 1.0.0
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
+        security:
+            - Bearer: []
+        paths:
+            /api/auth/login:
+                post:
+                    tags:
+                        - Authentication
+                    requestBody:
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        email:
+                                            type: string
+                                        password:
+                                            type: string
+                    responses:
+                        '200':
+                            description: OK
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            id:
+                                                type: int
+                                            phone:
+                                                type: string
+                                            roles:
+                                                type: array
+                                                items:
+                                                    type: string
+    areas: # to filter documented areas
+        default:
+            path_patterns: [^/api(?!/doc)]

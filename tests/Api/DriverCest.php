@@ -23,10 +23,8 @@ class DriverCest
         ]);
 
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'id' => 1,
-                'online' => $example[1],
-            ],
+            'id' => 1,
+            'online' => $example[1],
         ]);
 
         $i->seeInRepository(User::class, [

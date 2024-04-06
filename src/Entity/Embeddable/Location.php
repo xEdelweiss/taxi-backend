@@ -4,6 +4,7 @@ namespace App\Entity\Embeddable;
 
 use App\Trait\CoordinateUtils;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Embeddable]
 class Location
@@ -43,6 +44,7 @@ class Location
             ->setLongitude($data['longitude']);
     }
 
+    #[Ignore]
     public function isEmpty(): bool
     {
         return $this->address === '' && $this->latitude === 0.0 && $this->longitude === 0.0;

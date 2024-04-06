@@ -3,6 +3,7 @@
 namespace App\Entity\Embeddable;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Embeddable]
 class Money
@@ -24,6 +25,7 @@ class Money
         return new self(0, 'USD');
     }
 
+    #[Ignore]
     public function isEmpty(): bool
     {
         return $this->amount === 0;

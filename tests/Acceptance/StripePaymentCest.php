@@ -74,15 +74,13 @@ class StripePaymentCest
         ]);
 
         $i->seeResponse(HttpCode::CREATED, [
-            'data' => [
-                'amount' => 1234,
-                'currency' => 'USD',
-                'captured' => false,
-                'order_id' => 1,
-            ],
+            'amount' => 1234,
+            'currency' => 'USD',
+            'captured' => false,
+            'order_id' => 1,
         ]);
 
-        $i->assertNotEmpty($i->grabDataFromResponseByJsonPath('$.data.id')[0]);
+        $i->assertNotEmpty($i->grabDataFromResponseByJsonPath('$.id')[0]);
     }
 
     public function canCaptureHeldPaymentForTrip(AcceptanceTester $i): void
@@ -106,19 +104,17 @@ class StripePaymentCest
             'order_id' => 1,
         ]);
         $i->seeResponseCodeIs(HttpCode::CREATED);
-        $holdId = $i->grabDataFromResponseByJsonPath('$.data.id')[0];
+        $holdId = $i->grabDataFromResponseByJsonPath('$.id')[0];
 
         $i->sendPutAsJson("/api/payment/holds/{$holdId}", [
             'captured' => true,
         ]);
 
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'amount' => 1234,
-                'currency' => 'USD',
-                'captured' => true,
-                'order_id' => 1,
-            ],
+            'amount' => 1234,
+            'currency' => 'USD',
+            'captured' => true,
+            'order_id' => 1,
         ]);
     }
 }

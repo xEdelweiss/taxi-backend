@@ -2,12 +2,17 @@
 
 namespace App\Controller\Api;
 
+use App\Attribute\Output;
+use App\Dto\Driver\UpdateDriverPayload;
+use App\Dto\Driver\DriverResponse;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: 'Driver')]
 #[Route('/api/driver')]
 class DriverController extends AbstractController
 {
@@ -16,7 +21,8 @@ class DriverController extends AbstractController
     ) {}
 
     #[Route('/me', methods: ['PUT'])]
-    public function updateMe(Request $request): JsonResponse
+    #[Output(DriverResponse::class)]
+    public function updateMe(#[MapRequestPayload] UpdateDriverPayload $payload): JsonResponse
     {
         $profile = $this->getUser()->getDriverProfile();
 
@@ -24,28 +30,17 @@ class DriverController extends AbstractController
             throw new \RuntimeException('Driver profile not found.');
         }
 
-        $profile->setOnline($request->getPayload()->get('online'));
+        $profile->setOnline($payload->online);
 
         $this->entityManager->flush();
 
-        return new JsonResponse([
-            'data' => [
-                'id' => $this->getUser()->getId(),
-                'online' => $profile->isOnline(),
-            ],
-        ]);
+        return $this->json(new DriverResponse($this->getUser()));
     }
 
     #[Route('/me', methods: ['GET'])]
+    #[Output(DriverResponse::class)]
     public function showMe(): JsonResponse
     {
-        $user = $this->getUser();
-
-        return new JsonResponse([
-            'data' => [
-                'id' => $user->getId(),
-                'online' => $user->getDriverProfile()->isOnline(),
-            ],
-        ]);
+        return new JsonResponse(new DriverResponse($this->getUser()));
     }
 }
