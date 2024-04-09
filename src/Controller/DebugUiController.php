@@ -47,11 +47,9 @@ class DebugUiController extends AbstractController
         $this->entityManager->flush();
 
         return $this->json([
-            'data' => [
-                'type' => $user->getDriverProfile() ? 'driver' : 'user',
-                'phone' => $user->getPhone(),
-                'status' => 'No order',
-            ],
+            'type' => $user->getDriverProfile() ? 'driver' : 'user',
+            'phone' => $user->getPhone(),
+            'status' => 'No order',
         ]);
     }
 
@@ -82,9 +80,7 @@ class DebugUiController extends AbstractController
         $this->entityManager->flush();
 
         return $this->json([
-            'data' => [
-                'phone' => $phone,
-            ],
+            'phone' => $phone,
         ], Response::HTTP_OK);
     }
 
@@ -100,7 +96,7 @@ class DebugUiController extends AbstractController
             ->findAll();
 
         return $this->json([
-            'data' => array_map(fn(User $user) => [
+            'items' => array_map(fn(User $user) => [
                 'type' => $user->getDriverProfile() ? 'driver' : 'user',
                 'phone' => $user->getPhone(),
                 'coordinates' => $this->findCoordinates($locations, $user),
@@ -124,15 +120,13 @@ class DebugUiController extends AbstractController
             ->findBy(['userId' => ['$in' => $usersIds]]);
 
         return $this->json([
-            'data' => [
-                'locations' => array_map(fn(TrackingLocation $location) => [
-                    'phone' => $this->entityManager->find(User::class, $location->getUserId())->getPhone(),
-                    'coordinates' => [
-                        'latitude' => $location->getCoordinates()->getLatitude(),
-                        'longitude' => $location->getCoordinates()->getLongitude(),
-                    ],
-                ], $locations),
-            ],
+            'items' => array_map(fn(TrackingLocation $location) => [
+                'phone' => $this->entityManager->find(User::class, $location->getUserId())->getPhone(),
+                'coordinates' => [
+                    'latitude' => $location->getCoordinates()->getLatitude(),
+                    'longitude' => $location->getCoordinates()->getLongitude(),
+                ],
+            ], $locations),
         ]);
     }
 

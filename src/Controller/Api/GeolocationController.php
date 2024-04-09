@@ -12,6 +12,7 @@ use App\Service\Geolocation\GeolocationServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use OpenApi\Attributes as OA;
@@ -42,6 +43,7 @@ class GeolocationController extends AbstractController
     #[Route('/coordinates', methods: ['POST'])]
     #[OA\HeaderParameter(name: 'Accept-Language', required: false, schema: new OA\Schema(type: 'string', example: 'uk-UA'))]
     #[Output(CoordinatesResponse::class)]
+    #[OA\Response(response: 404, description: 'Address not found')]
     public function addressToCoords(#[MapRequestPayload] AddressToCoordinatesPayload $payload, Request $request): JsonResponse
     {
         try {

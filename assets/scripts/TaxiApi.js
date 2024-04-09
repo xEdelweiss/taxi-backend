@@ -30,7 +30,7 @@ class TaxiApi {
       throw new Error('No token provided');
     }
 
-    const {data} = await fetch('/api/geolocation/coordinates', {
+    const data = await fetch('/api/geolocation/coordinates', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ class TaxiApi {
       throw new Error('No token provided');
     }
 
-    const {data} = await fetch('/api/geolocation/addresses', {
+    const data = await fetch('/api/geolocation/addresses', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ class TaxiApi {
       throw new Error('No token provided');
     }
 
-    const {data} = await fetch('/api/navigation/routes', {
+    const data = await fetch('/api/navigation/routes', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ class TaxiApi {
       }),
     }).then(response => response.json());
 
-    return data.route;
+    return data;
   }
 
   async fetchEstimation(fromLatLng, fromAddress, toLatLng, toAddress, token) {
@@ -119,7 +119,7 @@ class TaxiApi {
       throw new Error('No token provided');
     }
 
-    const {data} = await fetch('/api/cost/estimations', {
+    const data = await fetch('/api/cost/estimations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ class TaxiApi {
   }
 
   async _fetchLocation(phone) {
-    const {data: {locations}} = await fetch(`/debug/last-location?phones[]=${phone}`, {
+    const {items: locations} = await fetch(`/debug/last-location?phones[]=${phone}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

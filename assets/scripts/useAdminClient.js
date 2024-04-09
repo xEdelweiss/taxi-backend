@@ -66,14 +66,14 @@ export default function useAdminClient() {
     refreshUsers(onlyLocations = false) {
       return fetch('/debug/users')
         .then(response => response.json())
-        .then(({data}) => {
-          this.coordinates = data.reduce((acc, user) => {
+        .then(({items}) => {
+          this.coordinates = items.reduce((acc, user) => {
             acc[user.phone] = user.coordinates;
             return acc;
           }, {});
 
           if (!onlyLocations) {
-            this.people = data;
+            this.people = items;
           }
         });
     },
@@ -143,7 +143,8 @@ export default function useAdminClient() {
     addDriver: async function () {
       return this._makeUser('driver')
         .then(data => {
-          this.drivers.push(data);
+          console.log('PUSHING DRIVER', data);
+          this.people.push(data);
         });
     },
 
@@ -155,8 +156,7 @@ export default function useAdminClient() {
         },
         body: JSON.stringify({type}),
       })
-        .then(response => response.json())
-        .then(({data}) => data);
+        .then(response => response.json());
     },
 
     removeUser: function (phone) {
@@ -171,7 +171,7 @@ export default function useAdminClient() {
     removeDriver: function (phone) {
       this._deletePerson(phone)
         .then(() => {
-          this.drivers = this.drivers.filter(driver => driver.phone !== phone);
+          this.people = this.people.filter(driver => driver.phone !== phone);
           this.$dispatch('driver-removed', {phone});
           console.log('Event:', 'driver-removed', {phone});
         });
@@ -185,8 +185,7 @@ export default function useAdminClient() {
         },
         body: JSON.stringify({phone}),
       })
-        .then(response => response.json())
-        .then(({data}) => data);
+        .then(response => response.json());
     },
 
     selectUser: function (phone) {

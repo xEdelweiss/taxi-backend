@@ -10,6 +10,6 @@ readonly class RouteDto
         public float $distance,
         public float $duration,
         public string $polyline,
-        public array $boundingBox,
+        public BoundingBoxDto $boundingBox,
     ) {}
 }

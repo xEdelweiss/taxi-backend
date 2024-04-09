@@ -52,7 +52,7 @@ class NavigationCest
 
         $i->seeResponse(HttpCode::OK);
         $i->assertIsString(
-            $i->grabDataFromResponseByJsonPath('$.data.route.polyline')[0]
+            $i->grabDataFromResponseByJsonPath('$.polyline')[0]
         );
     }
 
@@ -74,18 +74,14 @@ class NavigationCest
         ]);
 
         $i->seeResponse(HttpCode::OK, [
-            'data' => [
-                'route' => [
-                    'boundingBox' => [
-                        [
-                            'latitude' => 46.423028,
-                            'longitude' => 30.746708,
-                        ],
-                        [
-                            'latitude' => 46.427359,
-                            'longitude' => 30.751304,
-                        ],
-                    ],
+            'boundingBox' => [
+                'bottomLeft' => [
+                    'latitude' => 46.423028,
+                    'longitude' => 30.746708,
+                ],
+                'topRight' => [
+                    'latitude' => 46.427359,
+                    'longitude' => 30.751304,
                 ],
             ],
         ]);

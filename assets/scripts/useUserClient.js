@@ -158,8 +158,8 @@ export default function useUserClient() {
           );
 
           map.fitBounds([
-            [route.boundingBox[0].latitude, route.boundingBox[0].longitude],
-            [route.boundingBox[1].latitude, route.boundingBox[1].longitude],
+            [route.boundingBox.bottomLeft.latitude, route.boundingBox.bottomLeft.longitude],
+            [route.boundingBox.topRight.latitude, route.boundingBox.topRight.longitude],
           ]);
         } catch (e) {
           console.warn('fetch route error', e);
