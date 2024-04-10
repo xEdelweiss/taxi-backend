@@ -3,9 +3,12 @@
 namespace App\Dto;
 
 use App\Entity\Embeddable\Location;
+use App\Trait\CoordinateUtils;
 
 readonly class LocationDto
 {
+    use CoordinateUtils;
+
     public function __construct(
         public float $latitude,
         public float $longitude,
@@ -19,10 +22,5 @@ readonly class LocationDto
             $location->getLongitude(),
             $location->getAddress(),
         );
-    }
-
-    public function toLatLng(): array
-    {
-        return [$this->latitude, $this->longitude];
     }
 }

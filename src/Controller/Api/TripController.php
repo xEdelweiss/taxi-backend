@@ -4,10 +4,11 @@ namespace App\Controller\Api;
 
 use App\Attribute\Output;
 use App\Dto\Trip\CreateOrderPayload;
-use App\Dto\Trip\CreateOrderResponse;
+use App\Dto\Trip\UserOrderResponse;
 use App\Dto\Trip\OrderRequestsResponse;
 use App\Dto\Trip\ShowOrderResponse;
 use App\Dto\Trip\UpdateOrderPayload;
+use App\Dto\Trip\UserOrdersResponse;
 use App\Entity\Embeddable\Location;
 use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
@@ -37,9 +38,12 @@ class TripController extends AbstractController
     public function listOrders(): JsonResponse
     {
         if (!$this->getUser()->isDriver()) {
-            throw new \RuntimeException('Not implemented for users yet.');
+            $orders = $this->getUser()->getTripOrders();
+
+            return $this->json(new UserOrdersResponse($orders->toArray(), $this->navigationService));
         }
 
+        // @fixme move to order-requests?
         // @todo what about active orders for driver/user?
         $orderRequests = $this->getUser()->getDriverProfile()->getTripOrderRequest();
         $orderRequests = $orderRequests ? [$orderRequests] : [];
@@ -51,20 +55,27 @@ class TripController extends AbstractController
     #[Output(ShowOrderResponse::class)]
     public function showOrder(TripOrder $order): JsonResponse
     {
-        return $this->json(new ShowOrderResponse($order));
+        // @todo store route in order
+        $route = $this->navigationService->calculateRoute(
+            $order->getStart()->toLatLng(),
+            $order->getEnd()->toLatLng()
+        );
+
+        return $this->json(new UserOrderResponse($order, $route));
     }
 
     #[Route('/orders', methods: ['POST'])]
-    #[Output(CreateOrderResponse::class, Response::HTTP_CREATED)]
+    #[Output(UserOrderResponse::class, Response::HTTP_CREATED)]
     public function createOrder(#[MapRequestPayload] CreateOrderPayload $payload): JsonResponse
     {
+        // @todo store route in order
         $route = $this->navigationService->calculateRoute(
             $payload->start->toLatLng(),
             $payload->end->toLatLng()
         );
         $cost = new Money($this->costService->calculateCost($route), 'USD');
 
-        $order = new TripOrder();
+        $order = new TripOrder($this->getUser());
         $order->setCost($cost);
         $order->setStart(
             new Location($payload->start->address, $payload->start->latitude, $payload->start->longitude)
@@ -77,7 +88,7 @@ class TripController extends AbstractController
         $this->entityManager->persist($order);
         $this->entityManager->flush();
 
-        return $this->json(new CreateOrderResponse($order, $route), Response::HTTP_CREATED);
+        return $this->json(new UserOrderResponse($order, $route), Response::HTTP_CREATED);
     }
 
     #[Route('/orders/{order}', methods: ['PUT'])]
@@ -88,6 +99,12 @@ class TripController extends AbstractController
 
         $this->entityManager->flush();
 
-        return $this->json(new ShowOrderResponse($order));
+        // @todo store route in order
+        $route = $this->navigationService->calculateRoute(
+            $order->getStart()->toLatLng(),
+            $order->getEnd()->toLatLng()
+        );
+
+        return $this->json(new UserOrderResponse($order, $route));
     }
 }

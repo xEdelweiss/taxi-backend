@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\TripOrder;
+use App\Service\Trip\Enum\TripStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,6 +20,16 @@ class TripOrderRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, TripOrder::class);
+    }
+
+    /** @return TripOrder[] */
+    public function findActiveOrders(): array
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.status not in (:statuses)')
+            ->setParameter('statuses', [TripStatus::Completed, TripStatus::CanceledByDriver, TripStatus::CanceledByUser])
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**

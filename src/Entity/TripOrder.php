@@ -34,12 +34,17 @@ class TripOrder
     #[ORM\OneToOne(mappedBy: 'tripOrder', cascade: ['persist', 'remove'])]
     private ?TripOrderRequest $tripOrderRequest = null;
 
-    public function __construct()
+    #[ORM\ManyToOne(inversedBy: 'tripOrders')]
+    #[ORM\JoinColumn(nullable: false)]
+    private User $user;
+
+    public function __construct(User $user)
     {
         $this->status = TripStatus::Initial;
         $this->cost = Money::empty();
         $this->start = Location::empty();
         $this->end = Location::empty();
+        $this->user = $user;
     }
 
     public function getId(): ?int
@@ -153,5 +158,17 @@ class TripOrder
     public function getTripOrderRequest(): ?TripOrderRequest
     {
         return $this->tripOrderRequest;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
     }
 }

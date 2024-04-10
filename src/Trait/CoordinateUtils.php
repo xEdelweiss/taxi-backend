@@ -9,4 +9,9 @@ trait CoordinateUtils
         return (new \App\Util\CoordinateUtils())
             ->truncate($coordinate);
     }
+
+    public function toLatLng(): array
+    {
+        return [$this->latitude, $this->longitude];
+    }
 }

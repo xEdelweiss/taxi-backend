@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -38,9 +40,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $paymentAccountId = null;
 
+    #[ORM\OneToMany(targetEntity: TripOrder::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $tripOrders;
+
     public function __construct(string $phone)
     {
         $this->phone = $phone;
+        $this->tripOrders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -147,6 +153,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPaymentAccountId(?string $paymentAccountId): static
     {
         $this->paymentAccountId = $paymentAccountId;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TripOrder>
+     */
+    public function getTripOrders(): Collection
+    {
+        return $this->tripOrders;
+    }
+
+    public function addTripOrder(TripOrder $tripOrder): static
+    {
+        if (!$this->tripOrders->contains($tripOrder)) {
+            $this->tripOrders->add($tripOrder);
+            $tripOrder->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTripOrder(TripOrder $tripOrder): static
+    {
+        if ($this->tripOrders->removeElement($tripOrder)) {
+            // set the owning side to null (unless already changed)
+            if ($tripOrder->getUser() === $this) {
+                $tripOrder->setUser(null);
+            }
+        }
 
         return $this;
     }

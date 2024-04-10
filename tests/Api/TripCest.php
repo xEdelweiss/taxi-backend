@@ -49,6 +49,89 @@ class TripCest
                 'currency' => 'USD',
             ],
             'trip_time' => 68.3,
+            'user_id' => 1,
+        ]);
+    }
+
+    public function useCanReadOrders(ApiTester $i): void
+    {
+        $user = $i->haveUser(p(1));
+
+        $i->haveInRepository(TripOrder::class, [
+            'id' => 1,
+            'cost' => new Money(39540, 'USD'),
+            'start' => new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698),
+            'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186),
+            'status' => TripStatus::WaitingForPayment,
+            'paymentHoldId' => 'fake-payment-hold-id',
+            'user' => $user,
+        ]);
+
+        $i->loginAs(p(1));
+        $i->sendGetAsJson('/api/trip/orders');
+
+        $i->seeResponse(HttpCode::OK, [
+            'items' => [
+                [
+                    'id' => 1,
+                    'status' => 'WAITING_FOR_PAYMENT',
+                    'start' => [
+                        'latitude' => 46.42738,
+                        'longitude' => 30.75128,
+                        'address' => '7th st. Fontanskoyi dorohy',
+                    ],
+                    'end' => [
+                        'latitude' => 46.42317,
+                        'longitude' => 30.74705,
+                        'address' => 'Sehedska Street, 5',
+                    ],
+                    'cost' => [
+                        'amount' => 39540,
+                        'currency' => 'USD',
+                    ],
+                    'trip_time' => 68.3,
+                    'user_id' => 1,
+                ],
+            ],
+        ]);
+    }
+
+    public function useCanReadSingleOrder(ApiTester $i): void
+    {
+        $user = $i->haveUser(p(1));
+
+        $i->haveInRepository(TripOrder::class, [
+            'id' => 1,
+            'cost' => new Money(39540, 'USD'),
+            'start' => new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698),
+            'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186),
+            'status' => TripStatus::WaitingForPayment,
+            'paymentHoldId' => 'fake-payment-hold-id',
+            'user' => $user,
+        ]);
+
+        $i->loginAs(p(1));
+        $i->sendGetAsJson('/api/trip/orders/1');
+
+        $i->seeResponse(HttpCode::OK,                 [
+            'id' => 1,
+            'status' => 'WAITING_FOR_PAYMENT',
+            'start' => [
+                'latitude' => 46.42738,
+                'longitude' => 30.75128,
+                'address' => '7th st. Fontanskoyi dorohy',
+            ],
+            'end' => [
+                'latitude' => 46.42317,
+                'longitude' => 30.74705,
+                'address' => 'Sehedska Street, 5',
+            ],
+            'cost' => [
+                'amount' => 39540,
+                'currency' => 'USD',
+            ],
+            'trip_time' => 68.3,
+            'user_id' => 1,
         ]);
     }
 
@@ -73,6 +156,7 @@ class TripCest
             'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186),
             'status' => TripStatus::WaitingForPayment,
             'paymentHoldId' => 'fake-payment-hold-id',
+            'user' => $user,
         ]);
 
         $i->grabService(EventDispatcherInterface::class)
