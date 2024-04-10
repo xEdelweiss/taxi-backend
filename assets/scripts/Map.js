@@ -48,6 +48,10 @@ class Map {
     });
   }
 
+  getInstance() {
+    return this.map;
+  }
+
   move(latLng, zoom = this.defaultZoom) {
     if (latLng[0] === 0 && latLng[1] === 0) {
       return;

@@ -59,7 +59,7 @@ export default function useAdminClient() {
         coordsPopup
           .setLatLng(e.latlng)
           .setContent(e.latlng.toString())
-          .openOn(map);
+          .openOn(map.getInstance());
       });
     },
 
