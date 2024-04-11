@@ -2,10 +2,15 @@
 
 namespace App\Dto;
 
+use Symfony\Component\Serializer\Attribute\SerializedName;
+
 class BoundingBoxDto
 {
     public function __construct(
+        #[SerializedName('bottom_left')]
         public CoordinatesDto $bottomLeft,
+
+        #[SerializedName('top_right')]
         public CoordinatesDto $topRight
     ) {}
 

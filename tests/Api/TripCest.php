@@ -25,7 +25,7 @@ class TripCest
                 'longitude' => 30.751279752912698,
                 'address' => '7th st. Fontanskoyi dorohy',
             ],
-            'end' => [
+            'finish' => [
                 'latitude' => 46.423173199108106,
                 'longitude' => 30.74705368639186,
                 'address' => 'Sehedska Street, 5',
@@ -40,22 +40,46 @@ class TripCest
                 'longitude' => 30.75128,
                 'address' => '7th st. Fontanskoyi dorohy',
             ],
-            'end' => [
+            'finish' => [
                 'latitude' => 46.42317,
                 'longitude' => 30.74705,
                 'address' => 'Sehedska Street, 5',
             ],
+            'route' => [
+                'polyline' => '_zjzG}auzDh@URfATx@\~AJXp@jALPlB~A~@|@h@z@JRJNvAhAx@l@~BdBpC~ANq@',
+                'bounding_box' => [
+                    'bottom_left' => [
+                        'latitude' => 46.423028,
+                        'longitude' => 30.746708,
+                    ],
+                    'top_right' => [
+                        'latitude' => 46.427359,
+                        'longitude' => 30.751304,
+                    ],
+                ],
+                'duration' => 68.3,
+                'distance' => 634.5,
+            ],
+            'client' => [
+                'name' => null,
+                'phone' => '380990000001',
+            ],
+            'driver' => null,
+            'driver_location' => null,
+            'car' => null,
             'cost' => [
                 'amount' => 6345,
                 'currency' => 'USD',
             ],
-            'trip_time' => 68.3,
-            'user_id' => 1,
+            'start_eta' => 600,
+            'finish_eta' => 668,
         ]);
     }
 
-    public function useCanReadOrders(ApiTester $i): void
+    public function useCanReadActiveOrders(ApiTester $i): void
     {
+        // @fixme allow users to filter/fetch orders by status
+
         $user = $i->haveUser(p(1));
 
         $i->haveInRepository(TripOrder::class, [
@@ -65,6 +89,15 @@ class TripCest
             'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186),
             'status' => TripStatus::WaitingForDriver,
             'paymentHoldId' => 'fake-payment-hold-id',
+            'user' => $user,
+        ]);
+
+        $i->haveInRepository(TripOrder::class, [
+            'id' => 2,
+            'cost' => new Money(1234, 'USD'),
+            'start' => new Location('Some address 1', 46.4273814334286, 30.751279752912698),
+            'end' => new Location('Some address 2', 46.423173199108106, 30.74705368639186),
+            'status' => TripStatus::Completed,
             'user' => $user,
         ]);
 
@@ -81,17 +114,21 @@ class TripCest
                         'longitude' => 30.75128,
                         'address' => '7th st. Fontanskoyi dorohy',
                     ],
-                    'end' => [
+                    'finish' => [
                         'latitude' => 46.42317,
                         'longitude' => 30.74705,
                         'address' => 'Sehedska Street, 5',
                     ],
+                    'client' => [
+                        'name' => null,
+                        'phone' => '380990000001',
+                    ],
+                    'driver' => null,
+                    'car' => null,
                     'cost' => [
                         'amount' => 39540,
                         'currency' => 'USD',
                     ],
-                    'trip_time' => 68.3,
-                    'user_id' => 1,
                 ],
             ],
         ]);
@@ -122,17 +159,39 @@ class TripCest
                 'longitude' => 30.75128,
                 'address' => '7th st. Fontanskoyi dorohy',
             ],
-            'end' => [
+            'finish' => [
                 'latitude' => 46.42317,
                 'longitude' => 30.74705,
                 'address' => 'Sehedska Street, 5',
             ],
+            'route' => [
+                'polyline' => '_zjzG}auzDh@URfATx@\~AJXp@jALPlB~A~@|@h@z@JRJNvAhAx@l@~BdBpC~ANo@',
+                'bounding_box' => [
+                    'bottom_left' => [
+                        'latitude' => 46.423029,
+                        'longitude' => 30.746708,
+                    ],
+                    'top_right' => [
+                        'latitude' => 46.427357,
+                        'longitude' => 30.751304,
+                    ],
+                ],
+                'duration' => 68.3,
+                'distance' => 634.2,
+            ],
+            'client' => [
+                'name' => null,
+                'phone' => '380990000001',
+            ],
+            'driver' => null,
+            'driver_location' => null,
+            'car' => null,
             'cost' => [
                 'amount' => 39540,
                 'currency' => 'USD',
             ],
-            'trip_time' => 68.3,
-            'user_id' => 1,
+            'start_eta' => 600,
+            'finish_eta' => 668,
         ]);
     }
 
@@ -275,12 +334,24 @@ class TripCest
                         'longitude' => 30.75128,
                         'address' => '7th st. Fontanskoyi dorohy',
                     ],
-                    'end' => [
+                    'finish' => [
                         'latitude' => 46.42317,
                         'longitude' => 30.74705,
                         'address' => 'Sehedska Street, 5',
                     ],
-                    'trip_time' => 68.3,
+                    'client' => [
+                        'name' => null,
+                        'phone' => '380990000004',
+                    ],
+                    'driver' => [
+                        'name' => null,
+                        'phone' => '380990000003',
+                    ],
+                    'car' => null,
+                    'cost' => [
+                        'amount' => 39540,
+                        'currency' => 'USD',
+                    ],
                 ],
             ],
         ]);

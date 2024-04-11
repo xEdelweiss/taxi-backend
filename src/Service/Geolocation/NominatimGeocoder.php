@@ -7,6 +7,7 @@ use App\Dto\CoordinatesDto;
 use App\Service\Geolocation\AddressFormatter\NominatimAddressFormatter;
 use App\Exception\Geolocation\AddressNotFound;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[When(env: 'prod')]

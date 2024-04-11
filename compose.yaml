@@ -22,7 +22,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-!ChangeMe!}
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-app}
     volumes:
-      - mongodb_data:/data/db:rw
+      - taxi_mongo:/data/db:rw
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./var/docker/mongo/data:/data/db:rw
   osr-app:
@@ -50,4 +50,4 @@ volumes:
 ###> doctrine/doctrine-bundle ###
   database_data:
 ###< doctrine/doctrine-bundle ###
-  mongodb_data:
+  taxi_mongo:

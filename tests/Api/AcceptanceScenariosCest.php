@@ -85,7 +85,7 @@ class AcceptanceScenariosCest
         // User: Confirm order
         $i->sendPostAsJson('/api/trip/orders', [
             'start' => $START_LOCATION,
-            'end' => $END_LOCATION
+            'finish' => $END_LOCATION
         ]);
         $i->seeResponse(HttpCode::CREATED, [
             'id' => 1,
@@ -95,16 +95,18 @@ class AcceptanceScenariosCest
                 'longitude' => 30.75128,
                 'address' => '7th st. Fontanskoyi dorohy',
             ],
-            'end' => [
+            'finish' => [
                 'latitude' => 46.45154,
                 'longitude' => 30.74398,
                 'address' => 'Sehedska Street, 5',
+            ],
+            'client' => [
+                'phone' => p(1),
             ],
             'cost' => [
                 'amount' => 39540,
                 'currency' => 'USD',
             ],
-            'trip_time' => 319,
         ]);
 
         // User: Hold payment for the order
@@ -140,7 +142,7 @@ class AcceptanceScenariosCest
                         'longitude' => 30.75128,
                         'address' => '7th st. Fontanskoyi dorohy',
                     ],
-                    'end' => [
+                    'finish' => [
                         'latitude' => 46.45154,
                         'longitude' => 30.74398,
                         'address' => 'Sehedska Street, 5',

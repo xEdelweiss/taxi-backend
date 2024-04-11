@@ -74,12 +74,12 @@ class NavigationCest
         ]);
 
         $i->seeResponse(HttpCode::OK, [
-            'boundingBox' => [
-                'bottomLeft' => [
+            'bounding_box' => [
+                'bottom_left' => [
                     'latitude' => 46.423028,
                     'longitude' => 30.746708,
                 ],
-                'topRight' => [
+                'top_right' => [
                     'latitude' => 46.427359,
                     'longitude' => 30.751304,
                 ],

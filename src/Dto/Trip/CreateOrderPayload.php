@@ -8,6 +8,6 @@ readonly class CreateOrderPayload
 {
     public function __construct(
         public LocationDto $start,
-        public LocationDto $end,
+        public LocationDto $finish,
     ){ }
 }
