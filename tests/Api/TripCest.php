@@ -6,6 +6,7 @@ namespace App\Tests\Api;
 use App\Entity\Embeddable\Location;
 use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
+use App\Entity\TripOrderRequest;
 use App\Event\Payment\PaymentHeldForOrder;
 use App\Service\Trip\Enum\TripStatus;
 use App\Tests\Support\ApiTester;
@@ -62,7 +63,7 @@ class TripCest
             'cost' => new Money(39540, 'USD'),
             'start' => new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698),
             'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186),
-            'status' => TripStatus::WaitingForPayment,
+            'status' => TripStatus::WaitingForDriver,
             'paymentHoldId' => 'fake-payment-hold-id',
             'user' => $user,
         ]);
@@ -105,7 +106,7 @@ class TripCest
             'cost' => new Money(39540, 'USD'),
             'start' => new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698),
             'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186),
-            'status' => TripStatus::WaitingForPayment,
+            'status' => TripStatus::WaitingForDriver,
             'paymentHoldId' => 'fake-payment-hold-id',
             'user' => $user,
         ]);
@@ -113,7 +114,7 @@ class TripCest
         $i->loginAs(p(1));
         $i->sendGetAsJson('/api/trip/orders/1');
 
-        $i->seeResponse(HttpCode::OK,                 [
+        $i->seeResponse(HttpCode::OK, [
             'id' => 1,
             'status' => 'WAITING_FOR_PAYMENT',
             'start' => [
@@ -132,6 +133,96 @@ class TripCest
             ],
             'trip_time' => 68.3,
             'user_id' => 1,
+        ]);
+    }
+
+    public function userCanCancelNonPaidOrder(ApiTester $i): void
+    {
+        $user = $i->haveUser(p(1));
+
+        $i->haveInRepository(TripOrder::class, [
+            'id' => 1,
+            'cost' => new Money(39540, 'USD'),
+            'start' => new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698),
+            'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186),
+            'status' => TripStatus::WaitingForPayment,
+            'paymentHoldId' => null,
+            'user' => $user,
+        ]);
+
+        $i->loginAs(p(1));
+        $i->sendPutAsJson('/api/trip/orders/1', [
+            'status' => 'CANCELED_BY_USER'
+        ]);
+
+        $i->seeResponse(HttpCode::OK, [
+            'status' => 'CANCELED_BY_USER',
+        ]);
+        $i->seeInRepository(TripOrder::class, [
+            'id' => 1,
+            'status' => TripStatus::CanceledByUser,
+        ]);
+    }
+
+    public function driverCanCancelNonPaidOrder(ApiTester $i): void
+    {
+        $user = $i->haveUser(p(1));
+        $driver = $i->haveDriver(p(2));
+
+        $i->haveInRepository(TripOrder::class, [
+            'id' => 1,
+            'cost' => new Money(39540, 'USD'),
+            'start' => new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698),
+            'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186),
+            'status' => TripStatus::WaitingForPayment,
+            'paymentHoldId' => null,
+            'user' => $user,
+        ]);
+
+        $i->loginAs(p(2));
+        $i->sendPutAsJson('/api/trip/orders/1', [
+            'status' => 'CANCELED_BY_DRIVER'
+        ]);
+
+        $i->seeResponse(HttpCode::OK, [
+            'status' => 'CANCELED_BY_DRIVER',
+        ]);
+        $i->seeInRepository(TripOrder::class, [
+            'id' => 1,
+            'status' => TripStatus::CanceledByDriver,
+        ]);
+    }
+
+    public function orderRequestIsRemovedIfOrderIsCanceled(ApiTester $i): void
+    {
+        $user = $i->haveUser(p(1));
+        $driver = $i->haveDriver(p(2));
+
+        $orderId = $i->haveInRepository(TripOrder::class, [
+            'id' => 1,
+            'cost' => new Money(39540, 'USD'),
+            'start' => new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698),
+            'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186),
+            'status' => TripStatus::WaitingForPayment,
+            'paymentHoldId' => null,
+            'user' => $user,
+        ]);
+
+        $tripOrder = new TripOrderRequest($driver->getDriverProfile(), $i->grabEntityFromRepository(TripOrder::class, ['id' => $orderId]));
+        $i->haveInRepository($tripOrder);
+
+        $i->loginAs(p(2));
+        $i->sendPutAsJson('/api/trip/orders/1', [
+            'status' => 'CANCELED_BY_DRIVER'
+        ]);
+
+        $i->seeInRepository(TripOrder::class, [
+            'id' => 1,
+            'status' => TripStatus::CanceledByDriver,
+        ]);
+
+        $i->dontSeeInRepository(TripOrderRequest::class, [
+            'id' => 1,
         ]);
     }
 

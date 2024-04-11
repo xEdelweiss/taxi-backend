@@ -14,6 +14,7 @@ use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
 use App\Service\CostService;
 use App\Service\NavigationService;
+use App\Service\PaymentService;
 use App\Service\Trip\Enum\TripStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,7 +31,7 @@ class TripController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly NavigationService      $navigationService,
-        private readonly CostService            $costService,
+        private readonly CostService            $costService, private readonly PaymentService $paymentService,
     ) {}
 
     #[Route('/orders', methods: ['GET'])]
@@ -38,7 +39,8 @@ class TripController extends AbstractController
     public function listOrders(): JsonResponse
     {
         if (!$this->getUser()->isDriver()) {
-            $orders = $this->getUser()->getTripOrders();
+            $orders = $this->getUser()->getTripOrders()
+                ->filter(fn(TripOrder $order) => $order->getStatus()->isActive());
 
             return $this->json(new UserOrdersResponse($orders->toArray(), $this->navigationService));
         }
@@ -95,7 +97,17 @@ class TripController extends AbstractController
     #[Output(ShowOrderResponse::class)]
     public function updateOrder(#[MapRequestPayload] UpdateOrderPayload $payload, TripOrder $order): JsonResponse
     {
+        if ($payload->status === TripStatus::CanceledByUser || $payload->status === TripStatus::CanceledByDriver) {
+            // @todo refund
+            // $this->paymentService->refund($order);
+            $order->setPaymentHoldId(null);
+        }
+
         $order->setStatus($payload->status);
+
+        if (!$order->getStatus()->isActive() && $order->getTripOrderRequest()) {
+            $this->entityManager->remove($order->getTripOrderRequest());
+        }
 
         $this->entityManager->flush();
 

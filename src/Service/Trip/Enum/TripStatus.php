@@ -13,4 +13,12 @@ enum TripStatus: string
     case Completed = 'COMPLETED';
     case CanceledByUser = 'CANCELED_BY_USER';
     case CanceledByDriver = 'CANCELED_BY_DRIVER';
+
+    public function isActive(): bool
+    {
+        return match ($this) {
+            self::Completed, self::CanceledByUser, self::CanceledByDriver => false,
+            default => true,
+        };
+    }
 }

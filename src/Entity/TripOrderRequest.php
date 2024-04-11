@@ -13,11 +13,11 @@ class TripOrderRequest
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(inversedBy: 'tripOrderRequest', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'tripOrderRequest')]
     #[ORM\JoinColumn(nullable: false)]
     private DriverProfile $driver;
 
-    #[ORM\OneToOne(inversedBy: 'tripOrderRequest', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'tripOrderRequest')]
     #[ORM\JoinColumn(nullable: false)]
     private TripOrder $tripOrder;
 
