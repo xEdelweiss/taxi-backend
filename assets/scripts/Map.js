@@ -17,7 +17,7 @@ class Map {
   }
 
   static getIcon(type, scale = 1.2) {
-    return type === 'user'
+    return type === 'client'
       ? Map.getUserIcon(scale)
       : Map.getDriverIcon(scale);
   }

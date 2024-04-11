@@ -25,6 +25,18 @@ export default function useUserClient() {
         currency: 'USD',
       },
 
+      order: null,
+
+      get orderStep() {
+        if (['WAITING_FOR_DRIVER', 'DRIVER_ON_WAY', 'DRIVER_ARRIVED'].includes(this.order?.status)) {
+          return 1;
+        } else if (this.order?.status === 'COMPLETED') {
+          return 2;
+        }
+
+        return 0;
+      },
+
       get formattedCost() {
         return TaxiUtils.formatMoney(this.estimatedCost);
       },
@@ -80,6 +92,10 @@ export default function useUserClient() {
         map.addMarker('end', makeMarker([0, 0], 'Finish'));
 
         map.onClick((e) => {
+          if (this.order) {
+            return;
+          }
+
           this.activeLatLng = [e.latlng.lat, e.latlng.lng];
         })
       },
@@ -151,7 +167,7 @@ export default function useUserClient() {
             'route',
             new L.Polyline(points, {
               color: 'blue',
-              weight: 5,
+              weight: 8,
               opacity: 0.7,
               smoothFactor: 1,
             })
@@ -189,10 +205,19 @@ export default function useUserClient() {
           return;
         }
 
-        const {token, latLng} = await TaxiApi.login(phone);
+        const {token, latLng, order} = await TaxiApi.login(phone);
 
         this.token = token;
         this.startLatLng = latLng;
+        this.order = order;
+
+        if (this.order) {
+          this.startAddress = this.order.start.address;
+          this.endAddress = this.order.end.address;
+
+          this.startLatLng = [this.order.start.latitude, this.order.start.longitude];
+          this.endLatLng = [this.order.end.latitude, this.order.end.longitude];
+        }
       },
 
       async findAddress() {
@@ -201,8 +226,39 @@ export default function useUserClient() {
         } catch (e) {
           console.warn(e);
         }
-      }
-    })
+      },
+
+      async createOrder() {
+        if (!this.token || !this.startLatLng || !this.endLatLng) {
+          return;
+        }
+
+        try {
+          this.order = await TaxiApi.createOrder(
+            this.startLatLng,
+            this.startAddress,
+            this.endLatLng,
+            this.endAddress,
+            this.token,
+          );
+        } catch (e) {
+          console.warn('create order error', e);
+        }
+      },
+
+      async payOrder() {
+        if (!this.token || !this.order) {
+          return;
+        }
+
+        try {
+          await TaxiApi.payOrder(this.order.id, this.token);
+          this.order = TaxiApi.fetchOrder(this.token, this.order.id);
+        } catch (e) {
+          console.warn('pay order error', e);
+        }
+      },
+    }),
   );
 
   function makeMarker(latLng, tooltip) {

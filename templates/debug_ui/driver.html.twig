@@ -15,11 +15,56 @@
         </div>
     </div>
 
-    <div x-show="selectedPhone" class="absolute bottom-4 right-4 left-4 p-4 z-10 bg-white rounded-lg flex gap-2 justify-end">
-        <button class="bg-orange-600 hover:bg-orange-800 text-white px-4 py-2 rounded-lg flex gap-2 items-center">
-            <span>Go Online</span>
+    <div x-show="selectedPhone" class="absolute bottom-4 right-4 left-4 p-4 z-10 bg-white rounded-lg">
+        {# no order #}
+        <div x-show="!order" class="flex gap-2 justify-end">
+            <button class="bg-orange-600 hover:bg-orange-800 text-white px-4 py-2 rounded-lg flex gap-2 items-center">
+                <span>Go Online</span>
 
-            {{ source('icons/online.svg.twig') }}
-        </button>
+                {{ source('icons/online.svg.twig') }}
+            </button>
+        </div>
+
+        {# order request #}
+        <div x-show="order?.status === 'WAITING_FOR_DRIVER'" class="flex gap-2 justify-end">
+            <div class="flex-1 flex flex-col">
+                <div class="flex gap-2 w-full items-center text-gray-400">
+                    <div class="py-1">
+                        {% include 'icons/pin.svg.twig' with {'size': 'sm'} %}
+                    </div>
+
+                    <div class="text-sm line-clamp-1" x-text="order?.start.address"></div>
+                </div>
+
+                <div class="flex gap-2 w-full items-center text-gray-400">
+                    <div class="py-1">
+                        {% include 'icons/pin.svg.twig' with {'size': 'sm'} %}
+                    </div>
+
+                    <div class="text-sm line-clamp-1" x-text="order?.end.address"></div>
+                </div>
+            </div>
+
+            <button class="bg-green-600 hover:bg-green-800 text-white px-4 py-2 rounded-lg flex gap-2 items-center">
+                <span>Accept</span>
+
+                {{ source('icons/accept.svg.twig') }}
+            </button>
+
+            <button class="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded-lg flex gap-2 items-center">
+                <span>Reject</span>
+
+                {{ source('icons/reject.svg.twig') }}
+            </button>
+        </div>
+
+        {# order #}
+        <div x-show="order && order?.status !== 'WAITING_FOR_DRIVER'" class="flex gap-2 justify-end">
+            <button class="bg-orange-600 hover:bg-orange-800 text-white px-4 py-2 rounded-lg flex gap-2 items-center">
+                <span>Go Online</span>
+
+                {{ source('icons/online.svg.twig') }}
+            </button>
+        </div>
     </div>
 </div>

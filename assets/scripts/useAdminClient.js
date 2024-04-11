@@ -14,7 +14,7 @@ export default function useAdminClient() {
     interval: null,
 
     get users() {
-      return this.people.filter(user => user.type === 'user');
+      return this.people.filter(user => user.type === 'client');
     },
 
     get drivers() {
@@ -93,7 +93,7 @@ export default function useAdminClient() {
                 className: 'font-semibold text-sm bg-white text-gray-800 p-2 rounded-md shadow-md',
               })
               .on('click', () => {
-                if (user.type === 'user') {
+                if (user.type === 'client') {
                   this.selectUser(user.phone);
                 } else {
                   this.selectDriver(user.phone);
@@ -134,7 +134,7 @@ export default function useAdminClient() {
     },
 
     addUser: async function () {
-      return this._makeUser('user')
+      return this._makeUser('client')
         .then(data => {
           this.people.push(data);
         });

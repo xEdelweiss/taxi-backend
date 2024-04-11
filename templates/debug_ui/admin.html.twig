@@ -32,7 +32,13 @@
                                 <div>
                                     <div x-text="TaxiUtils.formatPhone(user.phone)"
                                          class="text-gray-600 group-hover:text-black"></div>
-                                    <div class="text-xs text-gray-500" x-text="user.status"></div>
+                                    <div class="text-xs text-gray-500">
+                                        <span x-show="user.order_id">
+                                            <span class="font-semibold text-black">Has order</span>
+                                            <span>[id: <span x-text="user.order_id"></span>]</span>
+                                        </span>
+                                        <span x-show="!user.order_id">No order</span>
+                                    </div>
                                 </div>
 
                                 <button @click.stop="removeUser(user.phone)"
@@ -70,7 +76,14 @@
                                 <div>
                                     <div x-text="TaxiUtils.formatPhone(driver.phone)"
                                          class="text-gray-600 group-hover:text-black"></div>
-                                    <div class="text-xs text-gray-500" x-text="driver.status"></div>
+
+                                    <div class="text-xs text-gray-500">
+                                        <span x-show="driver.order_request.id">
+                                            <span class="font-semibold text-black">Has order request</span>
+                                            <span>[id: <span x-text="driver.order_request.order_id"></span>]</span>
+                                        </span>
+                                        <span x-show="!driver.order_request.id">No order</span>
+                                    </div>
                                 </div>
 
                                 <button @click.stop="removeDriver(driver.phone)"
@@ -111,46 +124,3 @@
         </div>
     </div>
 </div>
-
-<script>
-
-</script>
-
-<script>
-  /*(function () {
-    const carsLayer = L.layerGroup();
-
-    var map = L.map('admin-map', {
-      layers: [carsLayer],
-    });
-    const startLat = 46.43036;
-    const startLng = 30.75487;
-
-    const carIcon = L.divIcon({
-      html: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 23.046 47.032"><path fill="#fff" d="M.717 8.34h21.892v34.282H.717z"/><path d="M17.402 0H5.643C2.526 0 0 3.467 0 6.584v34.804a5.644 5.644 0 0 0 5.643 5.644h11.759a5.645 5.645 0 0 0 5.644-5.644V6.584C23.044 3.467 20.518 0 17.402 0Zm4.655 14.188v11.665l-2.729.351v-4.806zm-1.432-3.415-2.219 8.51H4.638l-2.222-8.51c.001 0 8.884-3.018 18.209 0zM3.748 21.713v4.492l-2.73-.349V14.502Zm-2.73 16.225V27.579l2.73.343v8.196zm1.557 2.944 2.218-3.336h13.771l2.219 3.336zm16.753-5.077v-7.872l2.729-.355v10.048z"/></svg>`,
-      className: "",
-      iconSize: [24*0.6, 40*0.6],
-      iconAnchor: [12, 40],
-    });
-
-    map.setView(new L.LatLng(startLat, startLng), 15);
-
-    L.marker([startLat, startLng], { icon: carIcon }).addTo(carsLayer);
-
-    // coordinates popup START
-    const coordsPopup = L.popup();
-    function onMapClick(e) {
-      coordsPopup
-        .setLatLng(e.latlng)
-        .setContent(e.latlng.toString())
-        .openOn(map);
-    }
-    map.on('click', onMapClick);
-    // coordinates popup END
-
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
-  })();*/
-</script>

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Document\TrackingLocation;
 use App\Entity\DriverProfile;
+use App\Entity\TripOrder;
 use App\Entity\User;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,7 +35,7 @@ class DebugUiController extends AbstractController
         $nextValQuery = $dbConnection->getDatabasePlatform()->getSequenceNextValSQL('user_id_seq');
         $lastId = (int) $dbConnection->executeQuery($nextValQuery)->fetchOne();
 
-        $nextPhone = p($lastId + 1, $type === 'user' ? '380110000000' : '380220000000');
+        $nextPhone = p($lastId + 1, $type === 'client' ? '380110000000' : '380220000000');
 
         $user = new User($nextPhone);
         $user->setPassword($passwordHasher->hashPassword($user, '!password!'));
@@ -47,7 +48,7 @@ class DebugUiController extends AbstractController
         $this->entityManager->flush();
 
         return $this->json([
-            'type' => $user->getDriverProfile() ? 'driver' : 'user',
+            'type' => $user->getDriverProfile() ? 'driver' : 'client',
             'phone' => $user->getPhone(),
             'status' => 'No order',
         ]);
@@ -95,12 +96,22 @@ class DebugUiController extends AbstractController
             ->getRepository(TrackingLocation::class)
             ->findAll();
 
+        $orders = $this->entityManager->getRepository(TripOrder::class)
+            ->findActiveOrders();
+
         return $this->json([
             'items' => array_map(fn(User $user) => [
-                'type' => $user->getDriverProfile() ? 'driver' : 'user',
+                'type' => $user->getDriverProfile() ? 'driver' : 'client',
                 'phone' => $user->getPhone(),
                 'coordinates' => $this->findCoordinates($locations, $user),
-                'status' => 'No order',
+                'order_id' => $this->findOrder($orders, $user)?->getId(),
+                'order_request' => [
+                    'id' => $user->getDriverProfile()?->getTripOrderRequest()?->getId(),
+                    'order_id' => $user->getDriverProfile()?->getTripOrderRequest()?->getTripOrder()?->getId(),
+                ],
+                'driver_profile' => $user->getDriverProfile() ? [
+                    'online' => $user->getDriverProfile()->isOnline(),
+                ] : null
             ], $users),
         ]);
     }
@@ -139,6 +150,17 @@ class DebugUiController extends AbstractController
                     'latitude' => $location->getCoordinates()->getLatitude(),
                     'longitude' => $location->getCoordinates()->getLongitude(),
                 ];
+            }
+        }
+
+        return null;
+    }
+
+    private function findOrder(array $orders, User $user): ?TripOrder
+    {
+        foreach ($orders as $order) {
+            if ($order->getUser() === $user) {
+                return $order;
             }
         }
 

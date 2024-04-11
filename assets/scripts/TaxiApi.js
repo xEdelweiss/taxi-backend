@@ -16,12 +16,14 @@ class TaxiApi {
     }).then(response => response.json());
 
     const userLocation = await this._fetchLocation(phone);
+    const orders = await this.fetchOrders(token);
 
     return {
       token,
       latLng: userLocation?.coordinates
         ? [userLocation.coordinates.latitude, userLocation.coordinates.longitude]
         : TaxiConsts.DEFAULT_USER_LAT_LNG,
+      order: orders[0] || null,
     }
   }
 
@@ -142,6 +144,53 @@ class TaxiApi {
     return data;
   }
 
+  async createOrder(fromLatLng, fromAddress, toLatLng, toAddress, token) {
+    if (!token) {
+      throw new Error('No token provided');
+    }
+
+    const data = await fetch('/api/trip/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        start: {
+          latitude: fromLatLng[0],
+          longitude: fromLatLng[1],
+          address: fromAddress,
+        },
+        end: {
+          latitude: toLatLng[0],
+          longitude: toLatLng[1],
+          address: toAddress,
+        },
+      }),
+    }).then(response => response.json());
+
+    return data;
+  }
+
+  async payOrder(orderId, token) {
+    if (!token) {
+      throw new Error('No token provided');
+    }
+
+    const data = await fetch(`/api/payment/holds`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        order_id: orderId,
+      }),
+    });
+
+    return data;
+  }
+
   async _fetchLocation(phone) {
     const {items: locations} = await fetch(`/debug/last-location?phones[]=${phone}`, {
       method: 'GET',
@@ -151,6 +200,30 @@ class TaxiApi {
     }).then(response => response.json());
 
     return locations.find(location => location.phone === phone);
+  }
+
+  async fetchOrders(token) {
+    const {items: orders} = await fetch(`/api/trip/orders`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    }).then(response => response.json());
+
+    return orders;
+  }
+
+  async fetchOrder(token, orderId) {
+    const order = await fetch(`/api/trip/orders/${orderId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    }).then(response => response.json());
+
+    return order;
   }
 }
 
