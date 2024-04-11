@@ -11,6 +11,7 @@ All features are covered by tests using Codeception and PHPUnit.
 ## Todo
 
 - [x] Debug UI (moved to [separate repository](https://github.com/xEdelweiss/taxi-frontend))
+- [x] API documentation at `/api/doc`
 - [ ] Simulate driver/user actions
 - [x] Registration and authentication
 - [ ] Driver profile activation
@@ -19,7 +20,7 @@ All features are covered by tests using Codeception and PHPUnit.
 - [x] Location tracking
 - [x] Route planning
     - [x] OpenStreetRoute self-hosted service
-    - [ ] Route rendering
+    - [x] Route rendering
 - [x] Cost estimation
     - [x] Simple distance-based cost estimation
     - [ ] Advanced cost estimation
@@ -32,9 +33,9 @@ All features are covered by tests using Codeception and PHPUnit.
     - [x] Shortest distance matching strategy
     - [x] Fastest delivery time matching strategy
     - [ ] Retry matching if no drivers are available
-- [ ] Order management
+- [x] Order management
     - [x] Order creation
-    - [ ] Order cancellation
+    - [x] Order cancellation
     - [x] Order completion
 - [ ] Rating system
 
@@ -49,6 +50,7 @@ symfony serve
 ### Preparation
 
 #### OpenStreetRoute service
+
 1. Download OSM data from [OSM](https://www.openstreetmap.org/export) - use Overpass API to export large chunk of data
 2. Put the data into `var/ors-docker/files/map-odesa-test.osm` or change the file name
    in `var/ors-docker/config/ors-config.yml:102`
@@ -71,3 +73,7 @@ Custom OSM tiles: https://leaflet-extras.github.io/leaflet-providers/preview/
   php bin/console nelmio:apidoc:dump --format=html > api.html
   php bin/console nelmio:apidoc:dump --format=json > api.json
   ```
+
+* Do not use the same name for Response DTO constructor argument and property name, because NelmoApiDocBundle will use
+  the
+  constructor argument type for documentation.
