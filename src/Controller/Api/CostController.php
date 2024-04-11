@@ -20,7 +20,7 @@ class CostController extends AbstractController
 {
     public function __construct(
         private NavigationService $navigationService,
-        private CostService $costService,
+        private CostService       $costService,
     ) {}
 
     #[Route('/estimations', methods: ['POST'])]
@@ -28,8 +28,8 @@ class CostController extends AbstractController
     public function estimations(#[MapRequestPayload] CreateEstimationPayload $payload): JsonResponse
     {
         $route = $this->navigationService->calculateRoute(
-            $payload->start->toLatLng(),
-            $payload->end->toLatLng(),
+            $payload->start,
+            $payload->end,
         );
 
         return $this->json(new CreateEstimationResponse(

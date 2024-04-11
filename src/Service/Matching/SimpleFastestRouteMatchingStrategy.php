@@ -3,6 +3,7 @@
 namespace App\Service\Matching;
 
 use App\Document\TrackingLocation;
+use App\Dto\LocationDto;
 use App\Entity\DriverProfile;
 use App\Entity\Embeddable\Location;
 use App\Entity\User;
@@ -13,9 +14,9 @@ use Doctrine\ORM\EntityManagerInterface;
 class SimpleFastestRouteMatchingStrategy implements MatchingStrategyInterface
 {
     public function __construct(
-        private readonly DocumentManager $documentManager,
+        private readonly DocumentManager        $documentManager,
         private readonly EntityManagerInterface $entityManager,
-        private readonly NavigationService $navigationService,
+        private readonly NavigationService      $navigationService,
     ) {}
 
     public function findMatchingDriver(Location $start): ?DriverProfile
@@ -38,6 +39,7 @@ class SimpleFastestRouteMatchingStrategy implements MatchingStrategyInterface
             ->getDriverProfile();
     }
 
+    /** @param TrackingLocation[] $closestDriversLocations */
     private function getFastestRoute(array $closestDriversLocations, Location $start): ?TrackingLocation
     {
         $shortestDuration = PHP_INT_MAX;
@@ -45,8 +47,8 @@ class SimpleFastestRouteMatchingStrategy implements MatchingStrategyInterface
 
         foreach ($closestDriversLocations as $location) {
             $route = $this->navigationService->calculateRoute(
-                [$start->getLatitude(), $start->getLongitude()],
-                [$location->getCoordinates()->getLatitude(), $location->getCoordinates()->getLongitude()],
+                LocationDto::fromEmbeddable($start),
+                LocationDto::fromCoordinates($location->getCoordinates()),
             );
 
             if ($route->duration < $shortestDuration) {

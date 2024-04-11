@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Attribute\Output;
+use App\Dto\LocationDto;
 use App\Dto\Trip\CreateOrderPayload;
 use App\Dto\Trip\UserOrderResponse;
 use App\Dto\Trip\OrderRequestsResponse;
@@ -59,8 +60,8 @@ class TripController extends AbstractController
     {
         // @todo store route in order
         $route = $this->navigationService->calculateRoute(
-            $order->getStart()->toLatLng(),
-            $order->getEnd()->toLatLng()
+            LocationDto::fromEmbeddable($order->getStart()),
+            LocationDto::fromEmbeddable($order->getEnd()),
         );
 
         return $this->json(new UserOrderResponse($order, $route));
@@ -72,8 +73,8 @@ class TripController extends AbstractController
     {
         // @todo store route in order
         $route = $this->navigationService->calculateRoute(
-            $payload->start->toLatLng(),
-            $payload->end->toLatLng()
+            $payload->start,
+            $payload->end
         );
         $cost = new Money($this->costService->calculateCost($route), 'USD');
 
@@ -113,8 +114,8 @@ class TripController extends AbstractController
 
         // @todo store route in order
         $route = $this->navigationService->calculateRoute(
-            $order->getStart()->toLatLng(),
-            $order->getEnd()->toLatLng()
+            LocationDto::fromEmbeddable($order->getStart()),
+            LocationDto::fromEmbeddable($order->getEnd()),
         );
 
         return $this->json(new UserOrderResponse($order, $route));

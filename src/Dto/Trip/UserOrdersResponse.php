@@ -3,6 +3,7 @@
 namespace App\Dto\Trip;
 
 use App\Dto\AbstractResponse;
+use App\Dto\LocationDto;
 use App\Entity\TripOrder;
 use App\Service\NavigationService;
 
@@ -18,14 +19,8 @@ readonly class UserOrdersResponse extends AbstractResponse
             static fn (TripOrder $order) => new UserOrderResponse(
                 $order,
                 $navigationService->calculateRoute(
-                    [
-                        $order->getStart()->getLatitude(),
-                        $order->getStart()->getLongitude()
-                    ],
-                    [
-                        $order->getEnd()->getLatitude(),
-                        $order->getEnd()->getLongitude()
-                    ]
+                    LocationDto::fromEmbeddable($order->getStart()),
+                    LocationDto::fromEmbeddable($order->getEnd()),
                 ),
             ),
             $orders

@@ -2,6 +2,7 @@
 
 namespace App\Dto;
 
+use App\Document\Coordinates;
 use App\Entity\Embeddable\Location;
 use App\Trait\CoordinateUtils;
 
@@ -21,6 +22,15 @@ readonly class LocationDto
             $location->getLatitude(),
             $location->getLongitude(),
             $location->getAddress(),
+        );
+    }
+
+    public static function fromCoordinates(Coordinates $coordinates): self
+    {
+        return new self(
+            $coordinates->getLatitude(),
+            $coordinates->getLongitude(),
+            '',
         );
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\LocationDto;
 use App\Dto\RouteDto;
 use App\Service\Navigation\RouterClientInterface;
 
@@ -11,7 +12,7 @@ class NavigationService
         private readonly RouterClientInterface $routerClient,
     ) {}
 
-    public function calculateRoute(array $start, array $finish): RouteDto
+    public function calculateRoute(LocationDto $start, LocationDto $finish): RouteDto
     {
         return $this->routerClient->fetchRoute($start, $finish);
     }

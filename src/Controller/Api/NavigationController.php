@@ -25,8 +25,8 @@ class NavigationController extends AbstractController
     public function calculateRoute(#[MapRequestPayload] CreateRoutePayload $payload): Response
     {
         $route = $this->navigationService->calculateRoute(
-            $payload->start->toLatLng(),
-            $payload->end->toLatLng(),
+            $payload->start,
+            $payload->end,
         );
 
         return $this->json(new RouteResponse($route));
