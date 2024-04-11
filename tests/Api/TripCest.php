@@ -75,7 +75,7 @@ class TripCest
             'items' => [
                 [
                     'id' => 1,
-                    'status' => 'WAITING_FOR_PAYMENT',
+                    'status' => 'WAITING_FOR_DRIVER',
                     'start' => [
                         'latitude' => 46.42738,
                         'longitude' => 30.75128,
@@ -116,7 +116,7 @@ class TripCest
 
         $i->seeResponse(HttpCode::OK, [
             'id' => 1,
-            'status' => 'WAITING_FOR_PAYMENT',
+            'status' => 'WAITING_FOR_DRIVER',
             'start' => [
                 'latitude' => 46.42738,
                 'longitude' => 30.75128,

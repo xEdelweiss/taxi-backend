@@ -5,6 +5,7 @@ namespace App\Tests\Unit\Entity;
 use App\Entity\Embeddable\Location;
 use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
+use App\Entity\User;
 use App\Service\Trip\Enum\TripStatus;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -15,7 +16,7 @@ class TripOrderStatusFlowTest extends TestCase
     #[Test]
     public function createdWithInitialStatus(): TripOrder
     {
-        $order = new TripOrder();
+        $order = new TripOrder(new User(p(1)));
 
         $this->assertSame(TripStatus::Initial, $order->getStatus());
         $this->assertNull($order->getPaymentHoldId());
@@ -190,7 +191,7 @@ class TripOrderStatusFlowTest extends TestCase
 
     private function makeTripOrder(TripStatus $status): TripOrder
     {
-        $tripOrder = new TripOrder();
+        $tripOrder = new TripOrder(new User(p(1)));
 
         $reflectionClass = new \ReflectionClass(TripOrder::class);
         $reflectionProperty = $reflectionClass->getProperty('status');

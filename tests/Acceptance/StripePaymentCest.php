@@ -53,9 +53,11 @@ class StripePaymentCest
 
     public function canHoldPaymentForTrip(AcceptanceTester $i): void
     {
-        $i->haveUser(p(1));
+        $user = $i->haveUser(p(1));
         $i->linkPaymentAccountId(p(1));
         $i->haveInRepository(TripOrder::class, [
+            'user' => $user,
+
             'cost' => new Money(1234, 'USD'),
             'status' => TripStatus::WaitingForPayment,
 
@@ -85,11 +87,14 @@ class StripePaymentCest
 
     public function canCaptureHeldPaymentForTrip(AcceptanceTester $i): void
     {
-        $i->haveUser(p(1));
+        $user = $i->haveUser(p(1));
         $i->linkPaymentAccountId(p(1));
         $i->haveInRepository(TripOrder::class, [
+            'user' => $user,
+
             'cost' => new Money(1234, 'USD'),
             'status' => TripStatus::WaitingForPayment,
+
             // @fixme not required
             'start' => new Location('7th st. Fontanskoyi dorohy', 46.4273814334286, 30.751279752912698),
             'end' => new Location('Sehedska Street, 5', 46.423173199108106, 30.74705368639186)
