@@ -110,24 +110,13 @@ class TripOrder
 
     private function ensureStatusChangeValid(TripStatus $previous, TripStatus $next): void
     {
-        $order = [
-            TripStatus::Initial,
-            TripStatus::WaitingForPayment,
-            TripStatus::WaitingForDriver,
-            TripStatus::DriverOnWay,
-            TripStatus::DriverArrived,
-            TripStatus::InProgress,
-            TripStatus::Completed,
-        ];
-
-        $previousIndex = array_search($previous, $order, true);
-        $expectedNext = $order[$previousIndex + 1] ?? null;
-
-        if ($expectedNext === null) {
+        try {
+            $expectedNext = $previous->getNext();
+        } catch (\Exception $e) {
             throw new \InvalidArgumentException("Invalid TripOrder status change: no expected steps after [{$previous->value}]");
         }
 
-        if (in_array($next, [TripStatus::CanceledByDriver, TripStatus::CanceledByUser], true)) {
+        if ($next->isCanceled()) {
             if ($this->getPaymentHoldId()) {
                 throw new \InvalidArgumentException('Cannot cancel order with active payment hold');
             }

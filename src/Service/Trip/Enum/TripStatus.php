@@ -38,6 +38,12 @@ enum TripStatus: string
         };
     }
 
+    public function isCanceled(): bool
+    {
+        return $this === self::CanceledByUser
+            || $this === self::CanceledByDriver;
+    }
+
     public function isBefore(TripStatus $status, bool $orEqual = false): bool
     {
         if ($orEqual) {
@@ -56,6 +62,18 @@ enum TripStatus: string
         return $this->ordinal() > $status->ordinal();
     }
 
+    public function getNext(): self
+    {
+        $all = self::all();
+        $next = $all[$this->ordinal() + 1];
+
+        if ($next === null) {
+            throw new \LogicException('No next status after ' . $this->value);
+        }
+
+        return $next;
+    }
+
     private function ordinal(): int
     {
         return match ($this) {
@@ -66,8 +84,8 @@ enum TripStatus: string
             self::DriverArrived => 4,
             self::InProgress => 5,
             self::Completed => 6,
-            self::CanceledByUser => 7,
-            self::CanceledByDriver => 8,
+            self::CanceledByUser,
+            self::CanceledByDriver => throw new \LogicException('Cannot compare canceled statuses'),
         };
     }
 }

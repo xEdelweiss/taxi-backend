@@ -190,6 +190,7 @@ class TripOrderStatusFlowTest extends Unit
         $order->setStatus($to);
     }
 
+    /** @fixme duplicated in \App\Tests\Support\Helper\Entities::haveTripOrder */
     private function makeTripOrder(TripStatus $status): TripOrder
     {
         $tripOrder = new TripOrder(new User(p(1)));
@@ -198,30 +199,17 @@ class TripOrderStatusFlowTest extends Unit
         $reflectionProperty = $reflectionClass->getProperty('status');
         $reflectionProperty->setValue($tripOrder, $status);
 
-        if (in_array($status, [
-            TripStatus::WaitingForPayment,
-            TripStatus::WaitingForDriver,
-            TripStatus::DriverOnWay,
-            TripStatus::DriverArrived,
-            TripStatus::InProgress,
-            TripStatus::Completed,
-        ], true)) {
+        if (!$status->isCanceled() && $status->isAfter(TripStatus::WaitingForPayment, true)) {
             $reflectionProperty = $reflectionClass->getProperty('cost');
             $reflectionProperty->setValue($tripOrder, new Money(100, 'USD'));
         }
 
-        if (in_array($status, [
-            TripStatus::WaitingForDriver,
-            TripStatus::DriverOnWay,
-            TripStatus::DriverArrived,
-            TripStatus::InProgress,
-            TripStatus::Completed,
-        ], true)) {
+        if (!$status->isCanceled() && $status->isAfter(TripStatus::WaitingForDriver, true)) {
             $reflectionProperty = $reflectionClass->getProperty('paymentHoldId');
             $reflectionProperty->setValue($tripOrder, 'fake-payment-hold-id');
         }
 
-        if (in_array($status, [TripStatus::CanceledByDriver, TripStatus::CanceledByUser], true)) {
+        if ($status->isCanceled()) {
             $reflectionProperty = $reflectionClass->getProperty('paymentHoldId');
             $reflectionProperty->setValue($tripOrder, null);
         }
