@@ -75,6 +75,13 @@ class TripController extends AbstractController
     #[Output(TripOrderResponse::class, Response::HTTP_CREATED)]
     public function createOrder(#[MapRequestPayload] CreateOrderPayload $payload): JsonResponse
     {
+        if ($this->getUser()?->getDriverProfile()?->isOnline()) {
+            return $this->json([
+                'message' => 'Users with an online Driver Profile status cannot create orders.'],
+                Response::HTTP_CONFLICT,
+            );
+        }
+
         $route = $this->navigationService->calculateRoute(
             $payload->start,
             $payload->finish,

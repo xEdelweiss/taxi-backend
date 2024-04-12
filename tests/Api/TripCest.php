@@ -356,4 +356,28 @@ class TripCest
             ],
         ]);
     }
+
+    public function onlineDriverCannotCreateOrder(ApiTester $i): void
+    {
+        $driver = $i->amLoggedInAsNewDriver(p(1));
+        $driver->getDriverProfile()->setOnline(true);
+        $i->flushToDatabase();
+
+        $i->sendPostAsJson('/api/trip/orders', [
+            'start' => [
+                'latitude' => 46.4273814334286,
+                'longitude' => 30.751279752912698,
+                'address' => '7th st. Fontanskoyi dorohy',
+            ],
+            'finish' => [
+                'latitude' => 46.423173199108106,
+                'longitude' => 30.74705368639186,
+                'address' => 'Sehedska Street, 5',
+            ],
+        ]);
+
+        $i->seeResponseCodeIs(HttpCode::CONFLICT, [
+            'message' => 'Users with an online Driver Profile status cannot create orders.',
+        ]);
+    }
 }
