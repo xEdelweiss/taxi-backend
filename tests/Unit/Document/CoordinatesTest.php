@@ -3,10 +3,10 @@
 namespace App\Tests\Unit\Document;
 
 use App\Document\Coordinates;
+use Codeception\Test\Unit;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 
-class CoordinatesTest extends TestCase
+class CoordinatesTest extends Unit
 {
     #[Test]
     public function trimsCoordinates(): void

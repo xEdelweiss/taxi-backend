@@ -7,11 +7,11 @@ use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
 use App\Entity\User;
 use App\Service\Trip\Enum\TripStatus;
+use Codeception\Attribute\Examples;
+use Codeception\Test\Unit;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\TestWith;
-use PHPUnit\Framework\TestCase;
 
-class TripOrderStatusFlowTest extends TestCase
+class TripOrderStatusFlowTest extends Unit
 {
     #[Test]
     public function createdWithInitialStatus(): TripOrder
@@ -122,8 +122,8 @@ class TripOrderStatusFlowTest extends TestCase
     }
 
     #[Test]
-    #[TestWith([TripStatus::Initial])]
-    #[TestWith([TripStatus::WaitingForPayment])]
+    #[Examples(TripStatus::Initial)]
+    #[Examples(TripStatus::WaitingForPayment)]
     public function canCancelBeforePaid(TripStatus $status): void
     {
         $order = $this->makeTripOrder($status);
@@ -134,8 +134,8 @@ class TripOrderStatusFlowTest extends TestCase
     }
 
     #[Test]
-    #[TestWith([TripStatus::CanceledByUser])]
-    #[TestWith([TripStatus::CanceledByDriver])]
+    #[Examples(TripStatus::CanceledByUser)]
+    #[Examples(TripStatus::CanceledByDriver)]
     public function canCancelAfterPaidIfPaymentCanceled(TripStatus $status): void
     {
         $order = $this->makeTripOrder(TripStatus::WaitingForDriver);
@@ -147,8 +147,8 @@ class TripOrderStatusFlowTest extends TestCase
     }
 
     #[Test]
-    #[TestWith([TripStatus::CanceledByUser])]
-    #[TestWith([TripStatus::CanceledByDriver])]
+    #[Examples(TripStatus::CanceledByUser)]
+    #[Examples(TripStatus::CanceledByDriver)]
     public function cannotCancelIfHasPaymentHoldId(TripStatus $status): void
     {
         $order = $this->makeTripOrder(TripStatus::WaitingForDriver);
@@ -158,8 +158,8 @@ class TripOrderStatusFlowTest extends TestCase
     }
 
     #[Test]
-    #[TestWith([TripStatus::CanceledByUser])]
-    #[TestWith([TripStatus::InProgress])]
+    #[Examples(TripStatus::CanceledByUser)]
+    #[Examples(TripStatus::InProgress)]
     public function cannotChangeCompletedStatus(TripStatus $status): void
     {
         $order = $this->makeTripOrder(TripStatus::Completed);
@@ -169,8 +169,8 @@ class TripOrderStatusFlowTest extends TestCase
     }
 
     #[Test]
-    #[TestWith([TripStatus::WaitingForDriver, TripStatus::Completed])]
-    #[TestWith([TripStatus::DriverOnWay, TripStatus::WaitingForDriver])]
+    #[Examples(TripStatus::WaitingForDriver, TripStatus::Completed)]
+    #[Examples(TripStatus::DriverOnWay, TripStatus::WaitingForDriver)]
     public function cannotSkipStatusOrder(TripStatus $from, TripStatus $to): void
     {
         $order = $this->makeTripOrder($from);
@@ -180,7 +180,8 @@ class TripOrderStatusFlowTest extends TestCase
     }
 
     #[Test]
-    #[TestWith([TripStatus::DriverOnWay, TripStatus::WaitingForDriver])]
+    #[Examples(TripStatus::DriverOnWay, TripStatus::WaitingForDriver)]
+    #[Examples(TripStatus::DriverOnWay, TripStatus::WaitingForDriver)] // hack: Codeception fails for single Examples attribute
     public function cannotRewindStatusOrder(TripStatus $from, TripStatus $to): void
     {
         $order = $this->makeTripOrder($from);

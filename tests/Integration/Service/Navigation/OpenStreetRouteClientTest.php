@@ -4,11 +4,14 @@ namespace App\Tests\Integration\Service\Navigation;
 
 use App\Dto\LocationDto;
 use App\Service\Navigation\OpenStreetRouterClient;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use App\Tests\Support\IntegrationTester;
+use Codeception\Test\Unit;
 use Symfony\Component\HttpClient\CurlHttpClient;
 
-class OpenStreetRouteClientTest extends KernelTestCase
+class OpenStreetRouteClientTest extends Unit
 {
+    protected IntegrationTester $tester;
+
     public function testGetRoute_returns_distance_and_duration(): void
     {
         $client = new OpenStreetRouterClient(new CurlHttpClient(), 'http://localhost:8090');

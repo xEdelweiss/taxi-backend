@@ -2,9 +2,9 @@
 
 namespace App\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use Codeception\Test\Unit;
 
-class HealthcheckTest extends TestCase
+class HealthcheckTest extends Unit
 {
     public function testPhpUnitWorks(): void
     {

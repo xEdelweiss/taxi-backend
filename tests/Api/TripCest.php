@@ -76,7 +76,7 @@ class TripCest
         ]);
     }
 
-    public function useCanReadActiveOrders(ApiTester $i): void
+    public function userCanReadActiveOrders(ApiTester $i): void
     {
         // @fixme allow users to filter/fetch orders by status
 

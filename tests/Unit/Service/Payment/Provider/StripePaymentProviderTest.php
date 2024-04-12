@@ -4,14 +4,14 @@ namespace App\Tests\Unit\Service\Payment\Provider;
 
 use App\Entity\User;
 use App\Service\Payment\Provider\StripePaymentProvider;
+use Codeception\Test\Unit;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 use Stripe\Service as StripeService;
 use Stripe\StripeClient;
 use Symfony\Component\Routing\RouterInterface;
 
-class StripePaymentProviderTest extends TestCase
+class StripePaymentProviderTest extends Unit
 {
     #[Test]
     public function createCustomer_returns_customer_id(): void

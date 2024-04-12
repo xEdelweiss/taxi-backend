@@ -3,10 +3,10 @@
 namespace App\Tests\Unit\Entity\Embeddable;
 
 use App\Entity\Embeddable\Location;
+use Codeception\Test\Unit;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 
-class LocationTest extends TestCase
+class LocationTest extends Unit
 {
     #[Test]
     public function trimsCoordinates(): void

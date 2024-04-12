@@ -2,9 +2,9 @@
 
 namespace App\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use Codeception\Test\Unit;
 
-class HelpersTest extends TestCase
+class HelpersTest extends Unit
 {
     /** @test */
     public function pHelper(): void

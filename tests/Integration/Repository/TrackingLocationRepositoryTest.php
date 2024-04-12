@@ -3,20 +3,20 @@
 namespace App\Tests\Integration\Repository;
 
 use App\Document\TrackingLocation;
+use App\Tests\Support\IntegrationTester;
+use Codeception\Test\Unit;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use PHPUnit\Framework\Attributes\Test;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class TrackingLocationRepositoryTest extends KernelTestCase
+class TrackingLocationRepositoryTest extends Unit
 {
+    protected IntegrationTester $tester;
+
     private DocumentManager $documentManager;
 
-    protected function setUp(): void
+    protected function _before(): void
     {
-        parent::setUp();
-        $kernel = self::bootKernel();
-
-        $this->documentManager = $kernel->getContainer()->get('doctrine_mongodb.odm.default_document_manager');
+        $this->documentManager = $this->tester->grabService('doctrine_mongodb.odm.default_document_manager');
         $this->documentManager->createQueryBuilder(TrackingLocation::class)
             ->remove()
             ->getQuery()

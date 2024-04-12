@@ -8,22 +8,22 @@ use App\Entity\Embeddable\Location;
 use App\Entity\User;
 use App\Service\Matching\SimpleFastestRouteMatchingStrategy;
 use App\Service\NavigationService;
+use App\Tests\Support\IntegrationTester;
+use Codeception\Test\Unit;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class SimpleFastestRouteMatchingStrategyTest extends KernelTestCase
+class SimpleFastestRouteMatchingStrategyTest extends Unit
 {
+    protected IntegrationTester $tester;
+
     private DocumentManager $documentManager;
 
-    protected function setUp(): void
+    protected function _before(): void
     {
-        parent::setUp();
-        $kernel = self::bootKernel();
-
-        $this->documentManager = $kernel->getContainer()->get('doctrine_mongodb.odm.default_document_manager');
+        $this->documentManager = $this->tester->grabService('doctrine_mongodb.odm.default_document_manager');
         $this->documentManager->createQueryBuilder(TrackingLocation::class)
             ->remove()
             ->getQuery()
@@ -47,7 +47,7 @@ class SimpleFastestRouteMatchingStrategyTest extends KernelTestCase
         $strategy = new SimpleFastestRouteMatchingStrategy(
             $this->documentManager,
             $this->makeEntityManagerMock(),
-            self::$kernel->getContainer()->get(NavigationService::class),
+            $this->tester->grabService(NavigationService::class),
         );
 
         $driverProfile = $strategy->findMatchingDriver(new Location('Some Address', 46.42738, 30.75128));
