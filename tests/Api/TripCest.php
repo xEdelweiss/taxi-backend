@@ -102,7 +102,7 @@ class TripCest
         ]);
 
         $i->loginAs(p(1));
-        $i->sendGetAsJson('/api/trip/orders');
+        $i->sendGetAsJson('/api/trip/orders?status=ACTIVE');
 
         $i->seeResponse(HttpCode::OK, [
             'items' => [

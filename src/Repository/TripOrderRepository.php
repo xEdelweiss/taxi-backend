@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\TripOrder;
+use App\Entity\User;
 use App\Service\Trip\Enum\TripStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -28,6 +29,52 @@ class TripOrderRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('o')
             ->andWhere('o.status not in (:statuses)')
             ->setParameter('statuses', [TripStatus::Completed, TripStatus::CanceledByDriver, TripStatus::CanceledByUser])
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @param TripStatus[]|null $statuses */
+    public function findUserOrders(User $user, ?array $statuses): array
+    {
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->andWhere('o.user = :user')
+            ->setParameter('user', $user);
+
+        if (!empty($statuses)) {
+            $queryBuilder
+                ->andWhere('o.status in (:statuses)')
+                ->setParameter('statuses', $statuses);
+        }
+
+        return $queryBuilder
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @param TripStatus[]|null $statuses */
+    public function findUserOrdersIncludingRequests(User $user, ?array $statuses = null): array
+    {
+        $queryBuilder = $this->createQueryBuilder('o');
+
+        $queryBuilder
+            ->leftJoin('o.tripOrderRequest', 'tor')
+            ->leftJoin('tor.driver', 'dp')
+            ->leftJoin('dp.user', 'du')
+            ->andWhere(
+                $queryBuilder->expr()->orX(
+                    $queryBuilder->expr()->eq('o.user', ':user'),
+                    $queryBuilder->expr()->eq('du', ':user'),
+                )
+            )
+            ->setParameter('user', $user);
+
+        if (!empty($statuses)) {
+            $queryBuilder
+                ->andWhere('o.status in (:statuses)')
+                ->setParameter('statuses', $statuses);
+        }
+
+        return $queryBuilder
             ->getQuery()
             ->getResult();
     }

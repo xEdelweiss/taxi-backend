@@ -7,6 +7,7 @@ use App\Document\TrackingLocation;
 use App\Dto\LocationDto;
 use App\Dto\RouteDto;
 use App\Dto\Trip\CreateOrderPayload;
+use App\Dto\Trip\ListOrdersQuery;
 use App\Dto\Trip\TripOrderResponse;
 use App\Dto\Trip\TripOrdersResponse;
 use App\Dto\Trip\UpdateOrderPayload;
@@ -20,6 +21,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -36,22 +38,15 @@ class TripController extends AbstractController
 
     #[Route('/orders', methods: ['GET'])]
     #[Output(TripOrdersResponse::class)]
-    public function listOrders(): JsonResponse
+    public function listOrders(#[MapQueryString] ?ListOrdersQuery $query): JsonResponse
     {
-        // @todo should the cost be hidden for the driver?
+        $orders = $this->entityManager->getRepository(TripOrder::class)
+            ->findUserOrdersIncludingRequests(
+                $this->getUser(),
+                $query?->status?->toTripStatusList(),
+            );
 
-        $orders = $this->getUser()->getTripOrders()
-            ->filter(fn(TripOrder $order) => $order->getStatus()->isActive());
-
-        if ($this->getUser()->isDriver()) {
-            $orderRequest = $this->getUser()->getDriverProfile()->getTripOrderRequest()?->getTripOrder();
-
-            if ($orderRequest) {
-                $orders->add($orderRequest);
-            }
-        }
-
-        return $this->json(new TripOrdersResponse($orders->toArray()));
+        return $this->json(new TripOrdersResponse($orders));
     }
 
     #[Route('/orders/{order}', methods: ['GET'])]
