@@ -36,12 +36,6 @@ services:
     App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\FakeGeocoder'
     App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\FakePaymentProvider'
 
-when@test:
-    services:
-        App\Service\NavigationService:
-            autowire: true
-            public: true
-
 when@prod: &when_prod
     services:
         App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\NominatimGeocoder'

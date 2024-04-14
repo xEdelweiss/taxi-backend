@@ -13,6 +13,11 @@ use Codeception\Util\HttpCode;
 
 class StripePaymentCest
 {
+    public function _before(AcceptanceTester $i): void
+    {
+        $i->skipIfAcceptanceTestsDisabled();
+    }
+
     public function stripeCustomerIsCreatedForUser(AcceptanceTester $i): void
     {
         $i->sendPostAsJson('/api/auth/register', [

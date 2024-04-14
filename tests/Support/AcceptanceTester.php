@@ -20,10 +20,19 @@ use Codeception\Util\HttpCode;
  * @method void pause($vars = [])
  *
  * @SuppressWarnings(PHPMD)
-*/
+ */
 class AcceptanceTester extends ApiTester
 {
     use _generated\AcceptanceTesterActions;
+
+    public function skipIfAcceptanceTestsDisabled(): void
+    {
+        $condition = $_ENV['ALLOW_ACCEPTANCE_TESTS'];
+
+        if ($condition !== 'true' && $condition !== '1') {
+            $this->markTestSkipped('Acceptance tests are disabled');
+        }
+    }
 
     public function sendRegisterRequest(string $phone, string $password = '!password!'): void
     {

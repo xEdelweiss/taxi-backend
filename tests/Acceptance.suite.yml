@@ -6,7 +6,6 @@
 actor: AcceptanceTester
 modules:
     enabled:
-        - \App\Tests\Support\Helper\AcceptanceGuard:
         - Asserts
         - Symfony:
               app_path: 'src'

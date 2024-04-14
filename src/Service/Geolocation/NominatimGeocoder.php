@@ -4,8 +4,8 @@ namespace App\Service\Geolocation;
 
 use App\Dto\AddressDto;
 use App\Dto\CoordinatesDto;
-use App\Service\Geolocation\AddressFormatter\NominatimAddressFormatter;
 use App\Exception\Geolocation\AddressNotFound;
+use App\Service\Geolocation\AddressFormatter\NominatimAddressFormatter;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -15,10 +15,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class NominatimGeocoder implements GeocoderInterface
 {
     public function __construct(
-        private readonly HttpClientInterface $client,
+        private readonly HttpClientInterface       $client,
         private readonly NominatimAddressFormatter $addressFormatter,
         #[Autowire('%kernel.default_locale%')]
-        private $locale,
+        private                                    $locale,
     ) {}
 
     public function useLocale(string $locale): static

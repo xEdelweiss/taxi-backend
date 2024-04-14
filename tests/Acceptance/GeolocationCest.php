@@ -10,6 +10,11 @@ use Codeception\Util\HttpCode;
 
 class GeolocationCest
 {
+    public function _before(AcceptanceTester $i): void
+    {
+        $i->skipIfAcceptanceTestsDisabled();
+    }
+
     #[Examples('uk-UA', 46.473957097700236, 30.744767085113498, 'вулиця Осипова, 27')]
     #[Examples('en-US', 46.4273814334286, 30.751279752912698, '7th st. Fontanskoyi dorohy')]
     public function canGetAddressByCoordinates(AcceptanceTester $i, Example $example): void

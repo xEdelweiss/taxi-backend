@@ -3,14 +3,19 @@
 
 namespace App\Tests\Acceptance;
 
-use App\Tests\Support\ApiTester;
+use App\Tests\Support\AcceptanceTester;
 use Codeception\Util\HttpCode;
 use PHPUnit\Framework\Attributes\Test;
 
 class NavigationCest
 {
+    public function _before(AcceptanceTester $i): void
+    {
+        $i->skipIfAcceptanceTestsDisabled();
+    }
+
     #[Test]
-    public function canCalculateRouteBetweenPoints(ApiTester $i): void
+    public function canCalculateRouteBetweenPoints(AcceptanceTester $i): void
     {
         $i->amLoggedInAsNewDriver(p(1));
 
@@ -33,7 +38,7 @@ class NavigationCest
         ]);
     }
 
-    public function calculatedRouteContainsEncodedPolyline(ApiTester $i): void
+    public function calculatedRouteContainsEncodedPolyline(AcceptanceTester $i): void
     {
         $i->amLoggedInAsNewDriver(p(1));
 
@@ -56,7 +61,7 @@ class NavigationCest
         );
     }
 
-    public function calculatedRouteContainsBoundingBox(ApiTester $i): void
+    public function calculatedRouteContainsBoundingBox(AcceptanceTester $i): void
     {
         $i->amLoggedInAsNewDriver(p(1));
 
