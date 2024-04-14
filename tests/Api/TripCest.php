@@ -78,8 +78,6 @@ class TripCest
 
     public function userCanReadActiveOrders(ApiTester $i): void
     {
-        // @fixme allow users to filter/fetch orders by status
-
         $user = $i->haveUser(p(1));
 
         $i->haveInRepository(TripOrder::class, [

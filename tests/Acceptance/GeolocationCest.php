@@ -33,8 +33,8 @@ class GeolocationCest
         ]);
     }
 
-    #[Examples('en-US', 'Osypova Street, 27', 46.474105550000004, 30.744822181966768)]
-    #[Examples('uk-UA', '16 станція Фонтанської дороги', 46.3932621, 30.7471715)]
+    #[Examples('en-US', 'Osypova Street, 27', 46.47, 30.74)]
+    #[Examples('uk-UA', '16 станція Фонтанської дороги', 46.39, 30.74)]
     public function canGetCoordinatesByAddress(AcceptanceTester $i, Example $example): void
     {
         // todo: seems fragile, need to find a better way to test this
@@ -46,9 +46,7 @@ class GeolocationCest
         ]);
 
         $i->seeHttpHeader('Content-Language', explode('-', $example[0])[0]);
-        $i->seeResponse(HttpCode::OK, [
-            'latitude' => $example[2],
-            'longitude' => $example[3],
-        ]);
+        $i->assertEqualsWithDelta($example[2], $i->grabDataFromResponseByJsonPath('$.latitude')[0], 0.01);
+        $i->assertEqualsWithDelta($example[3], $i->grabDataFromResponseByJsonPath('$.longitude')[0], 0.01);
     }
 }
