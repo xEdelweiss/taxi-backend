@@ -18,7 +18,7 @@ class DebugUiController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly DocumentManager $documentManager,
+        private readonly DocumentManager        $documentManager,
     ) {}
 
     #[Route('/debug/users', methods: ['POST'])]
@@ -27,7 +27,7 @@ class DebugUiController extends AbstractController
         $type = $request->getPayload()->get('type');
         $dbConnection = $this->entityManager->getConnection();
         $nextValQuery = $dbConnection->getDatabasePlatform()->getSequenceNextValSQL('user_id_seq');
-        $lastId = (int) $dbConnection->executeQuery($nextValQuery)->fetchOne();
+        $lastId = (int)$dbConnection->executeQuery($nextValQuery)->fetchOne();
 
         $nextPhone = p($lastId + 1, $type === 'client' ? '380110000000' : '380220000000');
 
@@ -98,10 +98,9 @@ class DebugUiController extends AbstractController
                 'type' => $user->getDriverProfile() ? 'driver' : 'client',
                 'phone' => $user->getPhone(),
                 'coordinates' => $this->findCoordinates($locations, $user),
-                'order_id' => $this->findOrder($orders, $user)?->getId(),
-                'order_request' => [
-                    'id' => $user->getDriverProfile()?->getTripOrderRequest()?->getId(),
-                    'order_id' => $user->getDriverProfile()?->getTripOrderRequest()?->getTripOrder()?->getId(),
+                'order' => [
+                    'id' => $this->findOrder($orders, $user, (bool)$user->getDriverProfile())?->getId(),
+                    'status' => $this->findOrder($orders, $user, (bool)$user->getDriverProfile())?->getStatus()->value,
                 ],
                 'driver_profile' => $user->getDriverProfile() ? [
                     'online' => $user->getDriverProfile()->isOnline(),
@@ -150,10 +149,14 @@ class DebugUiController extends AbstractController
         return null;
     }
 
-    private function findOrder(array $orders, User $user): ?TripOrder
+    private function findOrder(array $orders, User $user, bool $driver): ?TripOrder
     {
         foreach ($orders as $order) {
-            if ($order->getUser() === $user) {
+            if ($driver && $order->getTripOrderRequest()?->getDriver()?->getUser() === $user) {
+                return $order;
+            }
+
+            if (!$driver && $order->getUser() === $user) {
                 return $order;
             }
         }
