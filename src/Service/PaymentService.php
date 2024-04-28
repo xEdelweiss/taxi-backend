@@ -2,10 +2,10 @@
 
 namespace App\Service;
 
+use App\Dto\Payment\PaymentHoldDto;
 use App\Entity\TripOrder;
 use App\Entity\User;
 use App\Event\Payment\PaymentHeldForOrder;
-use App\Service\Payment\Dto\PaymentHoldDto;
 use App\Service\Payment\PaymentServiceInterface;
 use App\Service\Payment\Provider\PaymentProviderInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;

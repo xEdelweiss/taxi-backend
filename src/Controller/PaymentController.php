@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\Payment\Dto\PaymentCredentialsDto;
+use App\Dto\Payment\PaymentCredentialsDto;
 use App\Service\Payment\Provider\FakePaymentProvider;
 use App\Service\Payment\Provider\StripePaymentProvider;
 use Stripe\StripeClient;

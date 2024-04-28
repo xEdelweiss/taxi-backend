@@ -8,18 +8,18 @@ use App\Dto\Payment\CreatePaymentMethodPayload;
 use App\Dto\Payment\CreatePaymentMethodResponse;
 use App\Dto\Payment\HoldPaymentPayload;
 use App\Dto\Payment\HoldPaymentResponse;
+use App\Dto\Payment\PaymentHoldDto;
 use App\Entity\TripOrder;
-use App\Service\Payment\Dto\PaymentHoldDto;
 use App\Service\Payment\ValueResolver\PaymentHoldValueResolver;
 use App\Service\PaymentService;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
-use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'Payment')]
 #[Route('/api/payment')]
@@ -61,9 +61,10 @@ class PaymentController extends AbstractController
     #[Route('/holds/{hold}', methods: ['PUT'])]
     #[Output(HoldPaymentResponse::class)]
     public function capture(
-        #[MapRequestPayload] CapturePaymentPayload $payload,
+        #[MapRequestPayload] CapturePaymentPayload                                  $payload,
         #[MapQueryString(resolver: PaymentHoldValueResolver::class)] PaymentHoldDto $hold
-    ): Response {
+    ): Response
+    {
         if ($payload->captured !== true) {
             return new Response(status: Response::HTTP_BAD_REQUEST);
         }

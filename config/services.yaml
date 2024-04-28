@@ -20,10 +20,9 @@ services:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
+            - '../src/Dto/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-            - '../src/Dto/'
-            - '../src/Service/Payment/Dto/'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

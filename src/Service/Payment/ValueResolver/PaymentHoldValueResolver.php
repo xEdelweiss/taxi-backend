@@ -2,7 +2,7 @@
 
 namespace App\Service\Payment\ValueResolver;
 
-use App\Service\Payment\Dto\PaymentHoldDto;
+use App\Dto\Payment\PaymentHoldDto;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;

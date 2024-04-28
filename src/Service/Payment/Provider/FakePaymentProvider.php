@@ -2,10 +2,10 @@
 
 namespace App\Service\Payment\Provider;
 
+use App\Dto\Payment\PaymentCredentialsDto;
+use App\Dto\Payment\PaymentHoldDto;
 use App\Entity\TripOrder;
 use App\Entity\User;
-use App\Service\Payment\Dto\PaymentCredentialsDto;
-use App\Service\Payment\Dto\PaymentHoldDto;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 

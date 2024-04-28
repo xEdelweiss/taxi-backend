@@ -2,7 +2,7 @@
 
 namespace App\Service\Payment\ValueResolver;
 
-use App\Service\Payment\Dto\PaymentCredentialsDto;
+use App\Dto\Payment\PaymentCredentialsDto;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
