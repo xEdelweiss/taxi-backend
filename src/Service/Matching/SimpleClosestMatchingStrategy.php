@@ -2,31 +2,29 @@
 
 namespace App\Service\Matching;
 
-use App\Document\TrackingLocation;
 use App\Entity\DriverProfile;
 use App\Entity\Embeddable\Location;
-use App\Entity\User;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\TrackingLocationRepository;
+use App\Repository\UserRepository;
 
-class SimpleClosestMatchingStrategy implements MatchingStrategyInterface
+readonly class SimpleClosestMatchingStrategy implements MatchingStrategyInterface
 {
     public function __construct(
-        private readonly DocumentManager $documentManager,
-        private readonly EntityManagerInterface $entityManager,
+        private TrackingLocationRepository $trackingLocationRepository,
+        private UserRepository             $userRepository,
     ) {}
 
     public function findMatchingDriver(Location $start): ?DriverProfile
     {
-        $closestDriversLocations = $this->documentManager->getRepository(TrackingLocation::class)
+        $closestDriversLocations = $this->trackingLocationRepository
             ->findClosestDrivers($start->getLatitude(), $start->getLongitude());
 
         if (empty($closestDriversLocations)) {
             return null;
         }
 
-        return $this->entityManager
-            ->find(User::class, $closestDriversLocations[0]->getUserId())
+        return $this->userRepository
+            ->find($closestDriversLocations[0]->getUserId())
             ->getDriverProfile();
     }
 }

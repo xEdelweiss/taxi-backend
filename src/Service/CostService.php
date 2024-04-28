@@ -5,10 +5,10 @@ namespace App\Service;
 use App\Dto\RouteDto;
 use App\Service\Cost\CostCalculatorInterface;
 
-class CostService
+readonly class CostService
 {
     public function __construct(
-        private readonly CostCalculatorInterface $costCalculator,
+        private CostCalculatorInterface $costCalculator,
     ) {}
 
     public function calculateCost(RouteDto $routeDto): float

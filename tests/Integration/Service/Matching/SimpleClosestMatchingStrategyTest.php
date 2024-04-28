@@ -6,12 +6,11 @@ use App\Document\TrackingLocation;
 use App\Entity\DriverProfile;
 use App\Entity\Embeddable\Location;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use App\Service\Matching\SimpleClosestMatchingStrategy;
 use App\Tests\Support\IntegrationTester;
 use Codeception\Test\Unit;
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
 
 class SimpleClosestMatchingStrategyTest extends Unit
@@ -44,8 +43,8 @@ class SimpleClosestMatchingStrategyTest extends Unit
         $this->documentManager->flush();
 
         $strategy = new SimpleClosestMatchingStrategy(
-            $this->documentManager,
-            $this->makeEntityManagerMock(),
+            $this->documentManager->getRepository(TrackingLocation::class),
+            $this->makeUserRepositoryMock(),
         );
 
         $driverProfile = $strategy->findMatchingDriver(new Location('Some Address', 46.42738, 30.75128));
@@ -53,12 +52,12 @@ class SimpleClosestMatchingStrategyTest extends Unit
         $this->assertSame(3, $driverProfile->getUser()->getId());
     }
 
-    private function makeEntityManagerMock(): EntityManagerInterface
+    private function makeUserRepositoryMock(): UserRepository
     {
-        $entityManager = $this->createMock(EntityManager::class);
+        $entityManager = $this->createMock(UserRepository::class);
         $entityManager->expects($this->once())
             ->method('find')
-            ->willReturnCallback(fn($entity, $id) => $this->makeUser($id));
+            ->willReturnCallback(fn($id) => $this->makeUser($id));
 
         return $entityManager;
     }

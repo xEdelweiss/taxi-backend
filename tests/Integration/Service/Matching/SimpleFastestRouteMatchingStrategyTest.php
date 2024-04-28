@@ -6,13 +6,12 @@ use App\Document\TrackingLocation;
 use App\Entity\DriverProfile;
 use App\Entity\Embeddable\Location;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use App\Service\Matching\SimpleFastestRouteMatchingStrategy;
 use App\Service\NavigationService;
 use App\Tests\Support\IntegrationTester;
 use Codeception\Test\Unit;
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
 
 class SimpleFastestRouteMatchingStrategyTest extends Unit
@@ -45,8 +44,8 @@ class SimpleFastestRouteMatchingStrategyTest extends Unit
         $this->documentManager->flush();
 
         $strategy = new SimpleFastestRouteMatchingStrategy(
-            $this->documentManager,
-            $this->makeEntityManagerMock(),
+            $this->documentManager->getRepository(TrackingLocation::class),
+            $this->getUserRepositoryMock(),
             $this->tester->grabService(NavigationService::class),
         );
 
@@ -55,14 +54,14 @@ class SimpleFastestRouteMatchingStrategyTest extends Unit
         $this->assertSame(4, $driverProfile->getUser()->getId());
     }
 
-    private function makeEntityManagerMock(): EntityManagerInterface
+    private function getUserRepositoryMock(): UserRepository
     {
-        $entityManager = $this->createMock(EntityManager::class);
-        $entityManager->expects($this->once())
+        $userRepository = $this->createMock(UserRepository::class);
+        $userRepository->expects($this->once())
             ->method('find')
-            ->willReturnCallback(fn($entity, $id) => $this->makeUser($id));
+            ->willReturnCallback(fn($id) => $this->makeUser($id));
 
-        return $entityManager;
+        return $userRepository;
     }
 
     private function makeUser(int $id): User

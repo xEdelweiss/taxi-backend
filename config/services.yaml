@@ -30,6 +30,11 @@ services:
         arguments:
             - '%env(STRIPE_SECRET_KEY)%'
 
+    # ODM issue, @see https://github.com/doctrine/DoctrineMongoDBBundle/issues/443
+    App\Repository\TrackingLocationRepository:
+        factory: ['@doctrine_mongodb.odm.document_manager', 'getRepository']
+        arguments: ['App\Document\TrackingLocation']
+
     App\Service\Matching\MatchingStrategyInterface: '@App\Service\Matching\SimpleClosestMatchingStrategy'
 
     App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\FakeGeocoder'

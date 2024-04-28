@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Document\TrackingLocation;
 use App\Dto\LocationDto;
 use App\Dto\RouteDto;
 use App\Entity\DriverProfile;
@@ -10,17 +9,17 @@ use App\Entity\Embeddable\Location;
 use App\Entity\Embeddable\Money;
 use App\Entity\TripOrder;
 use App\Entity\User;
+use App\Repository\TrackingLocationRepository;
 use App\Service\Trip\Enum\TripStatus;
-use Doctrine\ODM\MongoDB\DocumentManager;
 
-class TripService
+readonly class TripService
 {
     private const HARDCODED_ETA = 600;
 
     public function __construct(
-        private readonly NavigationService $navigationService,
-        private readonly CostService       $costService,
-        private readonly DocumentManager   $documentManager
+        private NavigationService          $navigationService,
+        private CostService                $costService,
+        private TrackingLocationRepository $trackingLocationRepository
     ) {}
 
     public function createOrder(User $user, RouteDto $route): TripOrder
@@ -43,8 +42,7 @@ class TripService
             return $this->calculateInitialEta($start);
         }
 
-        $trackingLocation = $this->documentManager->getRepository(TrackingLocation::class)
-            ->findByUser($driverProfile->getUser());
+        $trackingLocation = $this->trackingLocationRepository->findByUser($driverProfile->getUser());
 
         if (!$trackingLocation) {
             return $this->calculateInitialEta($start);
