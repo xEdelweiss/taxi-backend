@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Matching;
+namespace App\Service\Matching\Strategy;
 
 use App\Document\TrackingLocation;
 use App\Dto\LocationDto;

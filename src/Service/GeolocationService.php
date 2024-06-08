@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Service\Geolocation\GeocoderInterface;
+use App\Service\Geolocation\Geocoder\GeocoderInterface;
 use App\Service\Geolocation\GeolocationServiceInterface;
 
 readonly class GeolocationService implements GeolocationServiceInterface

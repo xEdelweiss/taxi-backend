@@ -7,7 +7,6 @@ use App\Entity\DriverProfile;
 use App\Entity\Embeddable\Location;
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Service\Matching\SimpleFastestRouteMatchingStrategy;
 use App\Service\NavigationService;
 use App\Tests\Support\IntegrationTester;
 use Codeception\Test\Unit;
@@ -43,7 +42,7 @@ class SimpleFastestRouteMatchingStrategyTest extends Unit
         $this->documentManager->persist($location4);
         $this->documentManager->flush();
 
-        $strategy = new SimpleFastestRouteMatchingStrategy(
+        $strategy = new \App\Service\Matching\Strategy\SimpleFastestRouteMatchingStrategy(
             $this->documentManager->getRepository(TrackingLocation::class),
             $this->getUserRepositoryMock(),
             $this->tester->grabService(NavigationService::class),

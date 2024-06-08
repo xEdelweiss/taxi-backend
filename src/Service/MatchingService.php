@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\DriverProfile;
 use App\Entity\Embeddable\Location;
-use App\Service\Matching\MatchingStrategyInterface;
+use App\Service\Matching\Strategy\MatchingStrategyInterface;
 
 readonly class MatchingService
 {

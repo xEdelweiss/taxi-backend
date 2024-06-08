@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Dto\LocationDto;
 use App\Dto\RouteDto;
-use App\Service\Navigation\RouterClientInterface;
+use App\Service\Navigation\Client\RouterClientInterface;
 
 readonly class NavigationService
 {

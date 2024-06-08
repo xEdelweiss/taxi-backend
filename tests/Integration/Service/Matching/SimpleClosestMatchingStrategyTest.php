@@ -7,7 +7,6 @@ use App\Entity\DriverProfile;
 use App\Entity\Embeddable\Location;
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Service\Matching\SimpleClosestMatchingStrategy;
 use App\Tests\Support\IntegrationTester;
 use Codeception\Test\Unit;
 use Doctrine\ODM\MongoDB\DocumentManager;
@@ -42,7 +41,7 @@ class SimpleClosestMatchingStrategyTest extends Unit
         $this->documentManager->persist($location4);
         $this->documentManager->flush();
 
-        $strategy = new SimpleClosestMatchingStrategy(
+        $strategy = new \App\Service\Matching\Strategy\SimpleClosestMatchingStrategy(
             $this->documentManager->getRepository(TrackingLocation::class),
             $this->makeUserRepositoryMock(),
         );

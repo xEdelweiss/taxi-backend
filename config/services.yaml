@@ -35,14 +35,14 @@ services:
         factory: ['@doctrine_mongodb.odm.document_manager', 'getRepository']
         arguments: ['App\Document\TrackingLocation']
 
-    App\Service\Matching\MatchingStrategyInterface: '@App\Service\Matching\SimpleClosestMatchingStrategy'
+    App\Service\Matching\Strategy\MatchingStrategyInterface: '@App\Service\Matching\Strategy\SimpleClosestMatchingStrategy'
 
-    App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\FakeGeocoder'
+    App\Service\Geolocation\Geocoder\GeocoderInterface: '@App\Service\Geolocation\Geocoder\FakeGeocoder'
     App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\FakePaymentProvider'
 
 when@prod: &when_prod
     services:
-        App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\NominatimGeocoder'
+        App\Service\Geolocation\Geocoder\GeocoderInterface: '@App\Service\Geolocation\Geocoder\NominatimGeocoder'
         App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\StripePaymentProvider'
 
 when@stage: *when_prod
