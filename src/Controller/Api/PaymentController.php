@@ -50,7 +50,7 @@ class PaymentController extends AbstractController
             ->find($payload->orderId);
 
         if (!$order) {
-            $this->createNotFoundException();
+            throw $this->createNotFoundException();
         }
 
         $hold = $this->paymentService->holdPaymentForOrder($this->getUser(), $order);
@@ -75,7 +75,7 @@ class PaymentController extends AbstractController
             ->find($orderId);
 
         if (!$order) {
-            $this->createNotFoundException();
+            throw $this->createNotFoundException();
         }
 
         // @fixme prevent double capture
