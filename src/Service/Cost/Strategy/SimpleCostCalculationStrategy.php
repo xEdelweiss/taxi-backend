@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Service\Cost;
+namespace App\Service\Cost\Strategy;
 
 use App\Dto\RouteDto;
 
-class SimpleCostCalculator implements CostCalculatorInterface
+class SimpleCostCalculationStrategy implements CostCalculationStrategyInterface
 {
     public function calculateCost(RouteDto $routeDto): float
     {

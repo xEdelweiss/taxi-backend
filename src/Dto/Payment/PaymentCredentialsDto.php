@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Service\Payment\Dto;
+namespace App\Dto\Payment;
 
 readonly class PaymentCredentialsDto implements \Stringable
 {
     public function __construct(
         public string $provider,
-        public array $credentials,
+        public array  $credentials,
     ) {}
 
     public function get(string $key): mixed

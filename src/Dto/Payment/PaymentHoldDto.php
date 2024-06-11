@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Payment\Dto;
+namespace App\Dto\Payment;
 
 readonly class PaymentHoldDto
 {

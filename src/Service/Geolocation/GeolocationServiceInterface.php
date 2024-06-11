@@ -2,7 +2,7 @@
 
 namespace App\Service\Geolocation;
 
-use App\Service\Geolocation\GeocoderInterface;
+use App\Service\Geolocation\Geocoder\GeocoderInterface;
 
 interface GeolocationServiceInterface
 {

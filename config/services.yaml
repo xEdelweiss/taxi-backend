@@ -20,10 +20,9 @@ services:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
+            - '../src/Dto/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-            - '../src/Dto/'
-            - '../src/Service/Payment/Dto/'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
@@ -31,14 +30,19 @@ services:
         arguments:
             - '%env(STRIPE_SECRET_KEY)%'
 
-    App\Service\Matching\MatchingStrategyInterface: '@App\Service\Matching\SimpleClosestMatchingStrategy'
+    # ODM issue, @see https://github.com/doctrine/DoctrineMongoDBBundle/issues/443
+    App\Repository\TrackingLocationRepository:
+        factory: ['@doctrine_mongodb.odm.document_manager', 'getRepository']
+        arguments: ['App\Document\TrackingLocation']
 
-    App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\FakeGeocoder'
+    App\Service\Matching\Strategy\MatchingStrategyInterface: '@App\Service\Matching\Strategy\SimpleClosestMatchingStrategy'
+
+    App\Service\Geolocation\Geocoder\GeocoderInterface: '@App\Service\Geolocation\Geocoder\FakeGeocoder'
     App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\FakePaymentProvider'
 
 when@prod: &when_prod
     services:
-        App\Service\Geolocation\GeocoderInterface: '@App\Service\Geolocation\NominatimGeocoder'
+        App\Service\Geolocation\Geocoder\GeocoderInterface: '@App\Service\Geolocation\Geocoder\NominatimGeocoder'
         App\Service\Payment\Provider\PaymentProviderInterface: '@App\Service\Payment\Provider\StripePaymentProvider'
 
 when@stage: *when_prod

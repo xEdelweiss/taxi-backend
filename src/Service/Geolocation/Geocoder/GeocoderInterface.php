@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Geolocation;
+namespace App\Service\Geolocation\Geocoder;
 
 use App\Dto\AddressDto;
 use App\Dto\CoordinatesDto;

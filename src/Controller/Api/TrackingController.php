@@ -9,6 +9,8 @@ use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use OpenApi\Attributes as OA;
 
@@ -22,8 +24,14 @@ class TrackingController extends AbstractController
 
     #[Route('/locations', methods: ['POST'])]
     #[Output(null, Response::HTTP_NO_CONTENT)]
-    public function trackLocation(#[MapRequestPayload] TrackLocationPayload $payload): Response
+    public function trackLocation(#[MapRequestPayload] TrackLocationPayload $payload, RateLimiterFactory $locationTrackingLimiter): Response
     {
+        $limiter = $locationTrackingLimiter->create($this->getUser()->getPhone());
+
+        if (!$limiter->consume(1)->isAccepted()) {
+            throw new TooManyRequestsHttpException();
+        }
+
         $location = $this->documentManager->getRepository(TrackingLocation::class)
             ->findOneBy(['userId' => $this->getUser()->getId()]);
 

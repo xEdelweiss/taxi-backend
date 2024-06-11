@@ -30,6 +30,7 @@ modules:
               depends: REST
         - \App\Tests\Support\Helper\Payment
         - \App\Tests\Support\Helper\Tracking
+        - \App\Tests\Support\Helper\RateLimiter
         - \App\Tests\Support\Helper\Entities:
               depends:
                 - Symfony

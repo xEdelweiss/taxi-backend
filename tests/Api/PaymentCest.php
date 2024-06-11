@@ -144,4 +144,26 @@ class PaymentCest
             'order_id' => 1,
         ]);
     }
+
+    public function failToHoldForNonExistingOrder(ApiTester $i): void
+    {
+        $i->amLoggedInAsNewUser(p(1));
+
+        $i->sendPostAsJson('/api/payment/holds', [
+            'order_id' => 1,
+        ]);
+
+        $i->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function failToCaptureForNonExistingOrder(ApiTester $i): void
+    {
+        $i->amLoggedInAsNewUser(p(1));
+
+        $i->sendPutAsJson('/api/payment/holds/oid-1', [
+            'captured' => true,
+        ]);
+
+        $i->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
 }

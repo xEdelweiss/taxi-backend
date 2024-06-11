@@ -1,27 +1,26 @@
 <?php
 
-namespace App\Service\Matching;
+namespace App\Service\Matching\Strategy;
 
 use App\Document\TrackingLocation;
 use App\Dto\LocationDto;
 use App\Entity\DriverProfile;
 use App\Entity\Embeddable\Location;
-use App\Entity\User;
+use App\Repository\TrackingLocationRepository;
+use App\Repository\UserRepository;
 use App\Service\NavigationService;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ORM\EntityManagerInterface;
 
-class SimpleFastestRouteMatchingStrategy implements MatchingStrategyInterface
+readonly class SimpleFastestRouteMatchingStrategy implements MatchingStrategyInterface
 {
     public function __construct(
-        private readonly DocumentManager        $documentManager,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly NavigationService      $navigationService,
+        private TrackingLocationRepository $trackingLocationRepository,
+        private UserRepository             $userRepository,
+        private NavigationService          $navigationService,
     ) {}
 
     public function findMatchingDriver(Location $start): ?DriverProfile
     {
-        $closestDriversLocations = $this->documentManager->getRepository(TrackingLocation::class)
+        $closestDriversLocations = $this->trackingLocationRepository
             ->findClosestDrivers($start->getLatitude(), $start->getLongitude());
 
         if (empty($closestDriversLocations)) {
@@ -34,8 +33,8 @@ class SimpleFastestRouteMatchingStrategy implements MatchingStrategyInterface
             throw new \LogicException('No shortest driver found, but there should be one.');
         }
 
-        return $this->entityManager
-            ->find(User::class, $shortestDriverLocation->getUserId())
+        return $this->userRepository
+            ->find($shortestDriverLocation->getUserId())
             ->getDriverProfile();
     }
 

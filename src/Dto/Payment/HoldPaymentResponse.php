@@ -4,7 +4,6 @@ namespace App\Dto\Payment;
 
 use App\Dto\AbstractResponse;
 use App\Entity\TripOrder;
-use App\Service\Payment\Dto\PaymentHoldDto;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
 readonly class HoldPaymentResponse extends AbstractResponse

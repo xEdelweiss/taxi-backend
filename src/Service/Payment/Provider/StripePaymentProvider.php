@@ -2,10 +2,10 @@
 
 namespace App\Service\Payment\Provider;
 
+use App\Dto\Payment\PaymentCredentialsDto;
+use App\Dto\Payment\PaymentHoldDto;
 use App\Entity\TripOrder;
 use App\Entity\User;
-use App\Service\Payment\Dto\PaymentCredentialsDto;
-use App\Service\Payment\Dto\PaymentHoldDto;
 use Stripe\PaymentMethod;
 use Stripe\StripeClient;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -40,13 +40,13 @@ class StripePaymentProvider implements PaymentProviderInterface
         // @fixme handle paymentAccountId is null
 
         $paymentProviderReturnUrl = $this->router
-            ->generate(
-                'app_payment_method_success',
-                [
-                    'return_url' => $returnUrl,
-                ],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            ) . '&session_id={CHECKOUT_SESSION_ID}';
+                ->generate(
+                    'app_payment_method_success',
+                    [
+                        'return_url' => $returnUrl,
+                    ],
+                    UrlGeneratorInterface::ABSOLUTE_URL
+                ) . '&session_id={CHECKOUT_SESSION_ID}';
 
         $session = $this->stripeClient->checkout->sessions->create([
             'ui_mode' => 'embedded',
