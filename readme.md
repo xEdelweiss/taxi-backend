@@ -1,6 +1,6 @@
 # Demo Taxi API
 
-This project is a demonstration of a taxi API that facilitates ordering a taxi from point A to point B.
+This project demonstrates a taxi API that implements ordering a taxi from point A to point B.
 
 All features are covered by tests using Codeception and PHPUnit.
 
@@ -8,10 +8,12 @@ All features are covered by tests using Codeception and PHPUnit.
 > environment. Although implementing validation and authorization mechanisms is planned, it is not a top priority at the
 > moment.
 
+[![API Docs and UI example](https://sverdlykivskyi.net.ua/misc/taxi/full.png)](https://sverdlykivskyi.net.ua/misc/taxi/)
+
 ## Todo
 
 - [x] Debug UI (moved to [separate repository](https://github.com/xEdelweiss/taxi-frontend))
-- [x] API documentation at `/api/doc`
+- [x] [API documentation](https://sverdlykivskyi.net.ua/misc/taxi/) at `/api/doc`
 - [ ] Simulate driver/user actions
 - [x] Registration and authentication
 - [ ] Driver profile activation
@@ -28,7 +30,7 @@ All features are covered by tests using Codeception and PHPUnit.
     - [x] Stripe integration
     - [x] Hold payment until the order is completed
     - [x] Charge payment if the order is completed
-    - [ ] Refund payment if the order is canceled
+    - [ ] Refund payment if the order is cancelled
 - [ ] Driver matching
     - [x] Shortest distance matching strategy
     - [x] Fastest delivery time matching strategy
